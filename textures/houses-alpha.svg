@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1920"
+   height="1080"
+   viewBox="0 0 1920.0001 1080"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r"
+   sodipodi:docname="houses-alpha.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     id="namedview20"
+     showgrid="false"
+     inkscape:zoom="0.45078057"
+     inkscape:cx="652.24681"
+     inkscape:cy="451.26503"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="texture" />
+  <defs
+     id="defs4">
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask4442">
+      <rect
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:8.47599983;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+         id="rect4444"
+         width="305.71426"
+         height="997.02789"
+         x="640"
+         y="75.219704"
+         ry="0.14326891" />
+    </mask>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask4442-1">
+      <rect
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:8.47599983;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+         id="rect4444-6"
+         width="305.71426"
+         height="997.02789"
+         x="640"
+         y="75.219704"
+         ry="0.14326891" />
+    </mask>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask4514">
+      <rect
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:8.47599983;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+         id="rect4516"
+         width="305.71426"
+         height="997.02789"
+         x="640"
+         y="75.219704"
+         ry="0.14326891" />
+    </mask>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask4518">
+      <rect
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:8.47599983;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+         id="rect4520"
+         width="305.71426"
+         height="997.02789"
+         x="640"
+         y="75.219704"
+         ry="0.14326891" />
+    </mask>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="texture"
+     style="display:inline">
+    <path
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:8.47599983;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       d="m 896.1427,82.972628 c -0.079,0 -0.1426,0.0632 -0.1426,0.14258 l 0,996.742292 c 0,0.079 0.063,0.1426 0.1426,0.1426 l 305.4277,0 c 0.079,0 0.1445,-0.064 0.1445,-0.1426 l 0,-996.742292 c 0,-0.0794 -0.065,-0.14258 -0.1445,-0.14258 z"
+       id="rect4210"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sssssssss" />
+    <path
+       id="path4448"
+       d="m 1236.1427,82.972628 c -0.079,0 -0.1426,0.0632 -0.1426,0.14258 l 0,996.742292 c 0,0.079 0.063,0.1426 0.1426,0.1426 l 305.4277,0 c 0.079,0 0.1445,-0.064 0.1445,-0.1426 l 0,-996.742292 c 0,-0.0794 -0.065,-0.14258 -0.1445,-0.14258 z"
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:8.47599983;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sssssssss" />
+    <path
+       id="path4452"
+       d="m 536.14263,82.972628 c -0.0794,0 -0.14258,0.0632 -0.14258,0.14258 l 0,996.742292 c 0,0.079 0.0632,0.1426 0.14258,0.1426 l 305.42777,0 c 0.079,0 0.1445,-0.064 0.1445,-0.1426 l 0,-996.742292 c 0,-0.0794 -0.065,-0.14258 -0.1445,-0.14258 z"
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:8.47599983;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sssssssss" />
+  </g>
+</svg>
