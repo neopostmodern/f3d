@@ -16,10 +16,22 @@ camera = view.Camera(np.array([0, 0, 0]), 55, IMAGE_SIZE)
 
 houseAlpha = view.AlphaMask('textures/houses-alpha.svg', np.array([-960, -540, 2000]), IMAGE_SIZE)
 
-houseSurface = view.TexturedSurface('textures/houses.svg', np.array([-960, -540, 2000]), IMAGE_SIZE)
-houseBackgroundSurface = view.TexturedSurface('textures/houses-gray.svg', np.array([-960, -540, 2100]), IMAGE_SIZE, mask_identifier=houseAlpha.identifier)
+houseSurface = view.TexturedSurface(
+    'textures/houses.svg',
+    np.array([-960, -540, 2000]),
+    IMAGE_SIZE,
+    opacity=0)
+houseBackgroundSurface = view.TexturedSurface(
+    'textures/houses-gray.svg',
+    np.array([-960, -540, 2100]),
+    IMAGE_SIZE,
+    mask_identifier=houseAlpha.identifier,
+    opacity=0)
 
-for z in range(0, 2200, 20):
+alphas = [houseAlpha]
+surfaces = [houseBackgroundSurface, houseSurface]
+
+for index, z in enumerate(range(-3000, 2200, 5)):
     camera.position[0] = z / 2
     camera.position[1] = z / -4
     camera.position[2] = z
@@ -28,24 +40,29 @@ for z in range(0, 2200, 20):
     svg_container = container_svg.find("//*[@id='container']")
     defs_container = container_svg.find("//*[@id='defs']")
 
-    defs_container.append(houseAlpha.get_transformed_to(
-        camera.project_surface(houseAlpha)
-    ))
-    svg_container.append(houseBackgroundSurface.get_transformed_to(
-        camera.project_surface(houseBackgroundSurface)
-    ))
-    svg_container.append(houseSurface.get_transformed_to(
-        camera.project_surface(houseSurface)
-    ))
+    for alpha in alphas:
+        if z < alpha.origin[2]:
+            defs_container.append(houseAlpha.get_transformed_to(
+                camera.project_surface(houseAlpha)
+            ))
 
-    with open("svg/test-%d.svg" % z, mode="w") as output_file:
+    for surface in surfaces:
+        if index < 400:
+            surface.opacity = index / 400
+
+        if z < surface.origin[2]:  # todo: hacky [too z-based]
+            svg_container.append(surface.get_transformed_to(
+                camera.project_surface(surface)
+            ))
+
+    with open("svg/test-%04d.svg" % index, mode="w") as output_file:
         output_file.write(etree.tostring(container_svg, encoding='unicode'))
 
     # https://inkscape.org/en/doc/inkscape-man.html
     command = ['inkscape',
                '-z',  # without GUI
-               '-f', '%s/svg/test-%d.svg' % (PATH, z), '-w 1920',
+               '-f', '%s/svg/test-%04d.svg' % (PATH, index), '-w 1920',
                '-j',
-               '-e', '%s/output/output-%d.png' % (PATH, z)]
+               '-e', '%s/output/output-%04d.png' % (PATH, index)]
     subprocess.Popen(command)
     # subprocess.check_call(command)

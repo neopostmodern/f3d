@@ -46,10 +46,11 @@ class Camera:
 
 
 class Surface:
-    def __init__(self, origin, size, svg_element, rotation=[0, 0, 0], prefix=""):
+    def __init__(self, origin, size, svg_element, rotation=[0, 0, 0], prefix="", opacity=1.0):
         self.origin = origin
         self.size = size
         self.rotation = rotation
+        self.opacity = opacity
 
         self.normalVector = np.array([0, 0, 1])
         self.normalVector = rotation_utility.rotate_vector_3d(self.normalVector, rotation)
@@ -62,11 +63,12 @@ class Surface:
         svg_element.set("transform", "matrix(%f %f %f %f %f %f)"
                             % tuple(svg_utility.generate_svg_transformation_matrix(mapping)))
         svg_element.set("id", self.identifier)
+        svg_element.set("opacity", str(self.opacity))
         return svg_element
 
 
 class TexturedSurface(Surface):
-    def __init__(self, texture_path, origin, size, rotation=[0, 0, 0], mask_identifier=None):
+    def __init__(self, texture_path, origin, size, rotation=[0, 0, 0], opacity=1.0, mask_identifier=None):
         with open(texture_path, 'r') as svg_file:
             svg_tree = etree.parse(svg_file)
             texture = svg_tree.find("//*[@id='texture']")
@@ -74,7 +76,7 @@ class TexturedSurface(Surface):
             if texture is None:
                 raise ValueError("SVG file without texture!")
 
-            Surface.__init__(self, origin, size, texture, rotation, prefix="textured-")
+            Surface.__init__(self, origin, size, texture, rotation, opacity=opacity, prefix="textured-")
 
             self.maskIdentifier = mask_identifier
 
@@ -91,7 +93,7 @@ class TexturedSurface(Surface):
 
 
 class AlphaMask(Surface):
-    def __init__(self, mask_path, origin, size, rotation=[0, 0, 0]):
+    def __init__(self, mask_path, origin, size, rotation=[0, 0, 0], opacity=1.0):
         with open(mask_path, 'r') as svg_file:
             svg_tree = etree.parse(svg_file)
             texture = svg_tree.find("//*[@id='mask']")
@@ -99,7 +101,7 @@ class AlphaMask(Surface):
             if texture is None:
                 raise ValueError("SVG file without mask!")
 
-            Surface.__init__(self, origin, size, texture, rotation, prefix="mask-")
+            Surface.__init__(self, origin, size, texture, rotation, opacity=opacity, prefix="mask-")
 
     def get_transformed_to(self, mapping):
         svg_mask = super().get_transformed_to(mapping)
