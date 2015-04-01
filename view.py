@@ -38,9 +38,11 @@ class Camera:
 
             ray_direction = rotation_utility.rotate_vector_3d(ray_direction, self.rotation)
 
-            intersection_points.append(
-                vector_utility.intersect(self.position, ray_direction, surface.origin, surface.normalVector)
-            )
+            intersection = vector_utility.intersect(self.position, ray_direction, surface.origin, surface.normalVector)
+            if intersection is None:
+                return None
+
+            intersection_points.append(intersection)
 
         return intersection_points
 
@@ -58,7 +60,7 @@ class Surface:
         self.svgElement = svg_element
         self.identifier = prefix + str(uuid.uuid4())
 
-    def get_transformed_to(self, mapping):
+    def get_svg_transformed_to(self, mapping):
         svg_element = copy.deepcopy(self.svgElement)
         svg_element.set("transform", "matrix(%f %f %f %f %f %f)"
                             % tuple(svg_utility.generate_svg_transformation_matrix(mapping)))
@@ -80,8 +82,8 @@ class TexturedSurface(Surface):
 
             self.maskIdentifier = mask_identifier
 
-    def get_transformed_to(self, mapping):
-        svg_texture = super().get_transformed_to(mapping)
+    def get_svg_transformed_to(self, mapping):
+        svg_texture = super().get_svg_transformed_to(mapping)
 
         if self.maskIdentifier is not None:
             mask_wrapper = etree.Element("g")
@@ -103,8 +105,8 @@ class AlphaMask(Surface):
 
             Surface.__init__(self, origin, size, texture, rotation, opacity=opacity, prefix="mask-")
 
-    def get_transformed_to(self, mapping):
-        svg_mask = super().get_transformed_to(mapping)
+    def get_svg_transformed_to(self, mapping):
+        svg_mask = super().get_svg_transformed_to(mapping)
 
         mask_wrapper = etree.Element("mask")
         mask_wrapper.set("id", self.identifier)

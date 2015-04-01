@@ -42,7 +42,7 @@ for index, z in enumerate(range(-3000, 2200, 5)):
 
     for alpha in alphas:
         if z < alpha.origin[2]:
-            defs_container.append(houseAlpha.get_transformed_to(
+            defs_container.append(houseAlpha.get_svg_transformed_to(
                 camera.project_surface(houseAlpha)
             ))
 
@@ -51,7 +51,7 @@ for index, z in enumerate(range(-3000, 2200, 5)):
             surface.opacity = index / 400
 
         if z < surface.origin[2]:  # todo: hacky [too z-based]
-            svg_container.append(surface.get_transformed_to(
+            svg_container.append(surface.get_svg_transformed_to(
                 camera.project_surface(surface)
             ))
 
