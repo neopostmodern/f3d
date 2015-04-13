@@ -57,16 +57,16 @@ houseSurfaceRotated = view.TexturedSurface(
     IMAGE_SIZE,
     rotation=[math.pi / 4, 0, 0])
 
-print(houseSurface.normalVector)
-print(houseSurfaceRotated.normalVector)
-print(houseSurfaceRotated.rotation)
+# print(houseSurface.normalVector)
+# print(houseSurfaceRotated.normalVector)
+# print(houseSurfaceRotated.rotation)
 
 alphas = [houseAlpha]
 surfaces = [houseBackgroundSurface, houseSurface, houseSurfaceRotated]
 
 for index, rotation in enumerate(range(-50, 50, 5)):
     # camera.position[2] = z
-    camera.rotation[1] = rotation / 50 * math.pi / 2
+    # todo: camera.rotation[1] = rotation / 50 * math.pi / 2
 
     container_svg = etree.parse(open("container.svg", mode='r'))
     svg_container = container_svg.find("//*[@id='container']")
@@ -74,6 +74,13 @@ for index, rotation in enumerate(range(-50, 50, 5)):
 
     for alpha in alphas:
         projection = camera.project_surface(houseAlpha)
+
+        if projection is not None:
+            print(projection)
+            print(svg_utility.generate_svg_transformation_matrix(projection, full_3d=True))
+            exit(42)
+            print(houseAlpha.get_svg_transformed_to(projection))
+
         if projection is not None:
             defs_container.append(houseAlpha.get_svg_transformed_to(projection))
 
