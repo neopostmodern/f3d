@@ -5,7 +5,7 @@ import numpy as np
 from lxml import etree
 
 import view
-import svg_utility
+
 
 __author__ = 'neo post modern'
 
