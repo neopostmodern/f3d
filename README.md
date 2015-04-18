@@ -1,4 +1,5 @@
-# super-vector-generator
+# F3D - Pseudo-3D generative SVG film scenes
+
 
 ## File Format (.f3d.json)
 The setting is stored in JSON. 
@@ -115,5 +116,25 @@ The `project_identifier` is used for the output sub-directory. (Can't currently 
     }
   ]
 }
+```
+
+
+## File Structure
+*(The structure can be renamed, but restructured through the setting.)*
+
+```plain
+setting.f3d.json
+textures/
+   (your input SVG files)
+svg/
+   project-identifier/
+       frame-0000.svg
+       ...
+       (output SVG)
+output/
+    project-identifier/
+       frame-0000.png
+       ...
+       (output PNG, use for video)
 ```
 
