@@ -3,6 +3,7 @@
 
 import argparse
 import logging
+import os
 
 from f3d.file_management import FileManagement
 from f3d.settings import Settings
@@ -27,8 +28,13 @@ logging.basicConfig(level=arguments.log_level)
 logging.debug("Debugging ('debug') output enabled.")
 logging.info("Verbose ('info') output enabled.")
 
-film = film.FakeFilm(arguments.setting_file)
-fm = FileManagement()
+try:
+    film = film.FakeFilm(os.path.join(os.getcwd(), arguments.setting_file))
+    fm = FileManagement()
+except Exception as exception:  # todo: more specific error catching
+    print("Fatal error during initialization: ")
+    print(exception)
+    exit(1)
 
 for index in range(int(Settings.timing['out'] * Settings.frames_per_second)):
     fm.svg_output(index, film.render(index / Settings.frames_per_second))

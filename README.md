@@ -44,6 +44,9 @@ The `project_identifier` is used for the output sub-directory. (Can't currently 
       "y": 0,
       "z": -1000
     },
+```
+You can specify a rotation in **radians**:
+```json
     "focal_length": 55
   },
   "surfaces": [
@@ -57,8 +60,12 @@ The `project_identifier` is used for the output sub-directory. (Can't currently 
         "x": -980,
         "y": -540,
         "z": 1000
-      },
+      },      
+```
 
+Then you can choose one of several types, currently `animated` or `static`:
+
+```json
       "type": "animated",
       "baseFrame": "circle",
       "frames": [
@@ -113,6 +120,18 @@ The `project_identifier` is used for the output sub-directory. (Can't currently 
           ]
         }
       ]
+```
+
+Alternative:
+```json
+      "type": "static",
+      "frame": {
+        "path": "experiment1/circle.svg",
+        "identifier": "texture"
+      }     
+```
+And then finally close off the file
+```json
     }
   ]
 }

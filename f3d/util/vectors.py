@@ -12,7 +12,17 @@ class Vector3():
         self.x = x
         self.y = y
         self.z = z
-        self.array_representation = numpy.array([x, y, z])
+
+    @property
+    def array_representation(self):
+        return numpy.array([self.x, self.y, self.z])
+
+    @array_representation.setter
+    def array_representation(self, value):
+        self.x = value[0]
+        self.y = value[1]
+        self.z = value[2]
+        return self.array_representation
 
     @classmethod
     def from_array(cls, array_like):
@@ -51,7 +61,7 @@ class Vector3():
         rotated_vector = Vector3.rotation_matrix_y(rotation.y).dot(rotated_vector)
         rotated_vector = Vector3.rotation_matrix_z(rotation.z).dot(rotated_vector)
 
-        self.from_array(rotated_vector)
+        self.array_representation = rotated_vector
 
         return self
 

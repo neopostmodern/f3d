@@ -30,15 +30,8 @@ class Camera(json_inheritor.JsonInheritor):
         self.angle_of_view = math.radians(40)
 
     def project_surface(self, surface):
-        intersection_points = []
-
-        # lower left, lower right, upper left, upper right
-        factors = [(-1, -1),
-                   ( 1, -1),
-                   (-1,  1),
-                   ( 1,  1)]
-
-        for x_factor, y_factor in factors:
+        def intersection_point(x_factor, y_factor):
+            # todo: cache?
             ray_direction = Vector3(
                 math.sin(self.angle_of_view),
                 math.sin(self.angle_of_view) * Settings.image.size.y / Settings.image.size.x,
@@ -60,9 +53,15 @@ class Camera(json_inheritor.JsonInheritor):
             if intersection is None:
                 return None
 
-            intersection_points.append(intersection)
+            return intersection
 
-        return intersection_points
+        # lower left, lower right, upper left, upper right
+        factors = [(-1, -1),
+                   ( 1, -1),
+                   (-1,  1),
+                   ( 1,  1)]
+
+        return [intersection_point(x_factor, y_factor) for x_factor, y_factor in factors]
 
     def position_at_time(self, time):
         return self.position

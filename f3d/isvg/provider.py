@@ -31,11 +31,21 @@ class BaseSvgProvider(object):
 
 
 class StaticSvgProvider(BaseSvgProvider):
-    def __init__(self, path):
-        print(path)
+    def __init__(self, surface):
+        frame_description = surface['frame']
+
+        # todo: make base path modifiable (not only CWD)
+        file_path = os.path.join(os.getcwd(), Settings.paths['svg_resources'], frame_description['path'])
+
+        try:
+            with open(file_path, 'r') as svg_file:
+                svg_tree = etree.parse(svg_file)
+                self.frame = svg_tree.find("//*[@id='%s']" % frame_description['identifier'])
+        except FileNotFoundError as fileNotFoundException:
+            raise Exception("[ERROR] SVG Provider: File '%s' not found!" % file_path) from fileNotFoundException
 
     def get_for_time(self, time):
-        pass
+        return deepcopy(self.frame)
 
 
 class AnimatedSvgProvider(BaseSvgProvider):
@@ -72,6 +82,8 @@ class AnimatedSvgProvider(BaseSvgProvider):
 
     def get_for_time(self, time):
         frame = deepcopy(self.base_frame)
+
         for animation in self.animations:
             frame = animation.get_for_time(time, frame)
+
         return frame

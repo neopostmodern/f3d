@@ -12,6 +12,7 @@ from f3d.isvg import provider
 from f3d.settings import Settings
 from f3d.camera import Camera
 from f3d.util.vectors import Vector3
+import f3d.util.svg as SvgUtility
 
 CONTAINER_SVG = """<?xml version="1.0" standalone="no"?>
 <svg
@@ -47,11 +48,14 @@ CONTAINER_SVG = """<?xml version="1.0" standalone="no"?>
 
 class FakeFilm():
     def __init__(self, setting_path):
-        with open(setting_path, mode='r') as setting_json:
-            try:
-                setting = json.load(setting_json) #, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
-            except ValueError:
-                raise Exception("[FakeFilm] Parsing of setting '%s' failed." % setting_path)
+        try:
+            with open(setting_path, mode='r') as setting_json:
+                try:
+                    setting = json.load(setting_json) #, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+                except ValueError:
+                    raise Exception("[FakeFilm] Parsing of setting '%s' failed." % setting_path)
+        except FileNotFoundError as fileError:
+            raise Exception("[FakeFilm] Settings file '%s' not found." % setting_path) from fileError
 
         Settings.set(setting['settings'])
 
@@ -69,13 +73,16 @@ class FakeFilm():
     @staticmethod
     def load_resources(surfaces):
         def load_surface(surface):
-            svg_provider = None
-            if surface['type'] == "animated":
-                svg_provider = provider.AnimatedSvgProvider(surface)
-            else:
-                warn("[ERROR] FakeFilm: Unsupported surface type '%s'." % surface['type'])
+            svg_provider = {
+                "animated": provider.AnimatedSvgProvider,
+                "static": provider.StaticSvgProvider
+            }.get(surface['type'], None)
 
-            return Surface(surface, svg_provider)
+            if svg_provider is None:
+                warn("[ERROR] FakeFilm: Unsupported surface type '%s'." % surface['type'])
+                return None  # todo: appropriate error handling?
+
+            return Surface(surface, svg_provider(surface))
 
         return [load_surface(surface) for surface in surfaces]
 
@@ -106,13 +113,22 @@ class Surface():
 
         self.normal_vector = Vector3(0, 0, 1).rotate(self.rotation)
 
+    def get_svg_transformed_to(self, mapping, svg_element):
+        # todo: review!
+        svg_element.set("style", "transform-origin: 280px 50px 0px; transform: matrix3d(%s);" %
+                        ", ".join(["%.6f" % value for value in mapping.flatten()]))
+
+        # svg_element.set("id", self.identifier)
+        # svg_element.set("opacity", str(self.opacity))
+        return svg_element
+
     def get_for_time(self, time, camera):
         svg = self.svg_provider.get_for_time(time)
         projection = camera.project_surface(self)
 
         if projection is not None:
             print(projection)
-            # mapping = svg_utility.generate_css3_3d_transformation_matrix(projection)
-            # svg_container.append(surface.get_svg_transformed_to(mapping))
+            mapping = SvgUtility.generate_css3_3d_transformation_matrix(projection)
+            return self.get_svg_transformed_to(mapping, svg)
 
         return svg
