@@ -1,11 +1,12 @@
 import numpy as np
+from f3d.settings import Settings
 
 __author__ = 'neo post modern'
 
 
 def into_svg(point):
-    return [point[0] + 960,
-            point[1] + 540]
+    return [point[0] + Settings.image.size.x / 2,
+            point[1] + Settings.image.size.y / 2]
 
 
 def from_svg(point):

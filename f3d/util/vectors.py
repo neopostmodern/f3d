@@ -7,7 +7,7 @@ import numpy as numpy
 import math
 
 
-class Vector3():
+class Vector3:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -24,9 +24,23 @@ class Vector3():
         self.z = value[2]
         return self.array_representation
 
-    @classmethod
-    def from_array(cls, array_like):
-        return cls(array_like[0], array_like[1], array_like[2])
+    def __add__(self, other):
+        modified_vector = Vector3(0, 0, 0)
+        if isinstance(other, Vector3):
+            modified_vector.array_representation = self.array_representation + other.array_representation
+        else:
+            modified_vector.array_representation = self.array_representation + other
+
+        return modified_vector
+
+    def __sub__(self, other):
+        modified_vector = Vector3(0, 0, 0)
+        if isinstance(other, Vector3):
+            modified_vector.array_representation = self.array_representation - other.array_representation
+        else:
+            modified_vector.array_representation = self.array_representation - other
+
+        return modified_vector
 
     @classmethod
     def from_object(cls, object_like):
@@ -65,25 +79,31 @@ class Vector3():
 
         return self
 
-
+# todo: implement via subclassing of ndarray http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 class Vector2():
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
-        self.array_representation = numpy.array([x, y])
+    @property
+    def array_representation(self):
+        return numpy.array([self.x, self.y])
 
-    @classmethod
-    def from_array(cls, array_like):
-        return cls(array_like[0], array_like[1])
+    @array_representation.setter
+    def array_representation(self, value):
+        self.x = value[0]
+        self.y = value[1]
+        return self.array_representation
 
     @classmethod
     def from_object(cls, object_like):
         return cls(object_like.x, object_like.y)
 
     @classmethod
-    def from_dict(cls, dict_like):
-        return cls(dict_like['x'], dict_like['y'])
+    def from_dict(cls, dict_like, keys=None):
+        if keys is None:
+            keys = ['x', 'y']
+        return cls(dict_like[keys[0]], dict_like[keys[1]])
 
 
 def intersect(ray_origin, ray_direction, plane_origin, plane_normal_vector, allow_negative=False):

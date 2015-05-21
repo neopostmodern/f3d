@@ -13,14 +13,15 @@ class Image(JsonInheritor):
         super().__init__(specification)
 
         if hasattr(self, 'size'):
-            print(self.size)
-            self.size = Vector2(self.size['width'], self.size['height'])
+            self.size = Vector2.from_dict(self.size, ['width', 'height'])
 
         if not hasattr(self, 'input_size'):
-            self.input_size = self.size
+            self.input_size = self.size  # todo: probably doesn't make sense!
             self.output_size = self.size
 
         # todo: other combinations of sizes / values
+
+        # todo: fail if none above present
 
 
 class _Settings():

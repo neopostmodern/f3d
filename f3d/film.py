@@ -7,11 +7,12 @@ from warnings import warn
 from copy import deepcopy
 from lxml import etree
 import json
+import numpy as numpy
 
 from f3d.isvg import provider
 from f3d.settings import Settings
 from f3d.camera import Camera
-from f3d.util.vectors import Vector3
+from f3d.util.vectors import Vector3, Vector2
 import f3d.util.svg as SvgUtility
 
 CONTAINER_SVG = """<?xml version="1.0" standalone="no"?>
@@ -46,7 +47,7 @@ CONTAINER_SVG = """<?xml version="1.0" standalone="no"?>
 """
 
 
-class FakeFilm():
+class FakeFilm:
     def __init__(self, setting_path):
         try:
             with open(setting_path, mode='r') as setting_json:
@@ -82,7 +83,7 @@ class FakeFilm():
                 warn("[ERROR] FakeFilm: Unsupported surface type '%s'." % surface['type'])
                 return None  # todo: appropriate error handling?
 
-            return Surface(surface, svg_provider(surface))
+            return NaiveSurface(surface, svg_provider(surface))  # hack: using naive solution!
 
         return [load_surface(surface) for surface in surfaces]
 
@@ -101,7 +102,7 @@ class FakeFilm():
         return container
 
 
-class Surface():
+class Surface:
     def __init__(self, specification, svg_provider):
         self.svg_provider = svg_provider
         self.position = Vector3.from_dict(specification['position'])
@@ -110,6 +111,11 @@ class Surface():
             self.rotation = Vector3.from_dict(specification['rotation'])
         else:
             self.rotation = Vector3(0, 0, 0)
+
+        if 'size' in specification:
+            self.size = Vector2.from_dict(specification['size'], ['width', 'height'])
+        else:
+            self.size = Settings.image.size
 
         self.normal_vector = Vector3(0, 0, 1).rotate(self.rotation)
 
@@ -130,5 +136,45 @@ class Surface():
             print(projection)
             mapping = SvgUtility.generate_css3_3d_transformation_matrix(projection)
             return self.get_svg_transformed_to(mapping, svg)
+
+        return svg
+
+class NaiveSurface(Surface):
+    def get_svg_transformed_to(self, mapping, svg_element):
+        lower_left = SvgUtility.into_svg(mapping[0])
+        lower_right = SvgUtility.into_svg(mapping[1])
+        upper_left = SvgUtility.into_svg(mapping[2])
+
+        old_coordinates = [
+            lower_left[0], lower_left[1],
+            lower_right[0], lower_right[1],
+            upper_left[0], upper_left[1]
+        ]
+
+        # look at this: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+        target_matrix = numpy.array([
+            [0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 1],
+            [Settings.image.size.x, 0, 0, 0, 1, 0],
+            [0, Settings.image.size.x, 0, 0, 0, 1],
+            [0, 0, Settings.image.size.y, 0, 1, 0],
+            [0, 0, 0, Settings.image.size.y, 0, 1]
+        ])
+
+        for i in range(6):
+            print(target_matrix[i], old_coordinates[i])
+
+        transform_matrix = numpy.linalg.solve(target_matrix, old_coordinates)
+
+        svg_element.set("transform", "matrix(%f %f %f %f %f %f)" % tuple(transform_matrix))
+        return svg_element
+
+    def get_for_time(self, time, camera):
+        svg = self.svg_provider.get_for_time(time)
+        projection = camera.project_surface(self)
+
+        if projection is not None:
+            print(projection)
+            return self.get_svg_transformed_to(projection, svg)
 
         return svg

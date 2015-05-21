@@ -31,23 +31,20 @@ class Camera(json_inheritor.JsonInheritor):
 
     def project_surface(self, surface):
         def intersection_point(x_factor, y_factor):
-            # todo: cache?
-            ray_direction = Vector3(
-                math.sin(self.angle_of_view),
-                math.sin(self.angle_of_view) * Settings.image.size.y / Settings.image.size.x,
-                1
-            )
+            canvas_normal = Vector3(0, 0, 1).rotate(self.rotation)
+            canvas_origin = self.position + canvas_normal.array_representation * 3000  # todo: legitimate values please
 
-            ray_direction.x *= x_factor
-            ray_direction.y *= y_factor
+            surface_corner = Vector3(Settings.image.size.x * x_factor, Settings.image.size.y * y_factor, 0)\
+                .rotate(surface.rotation)\
+                + surface.position
 
-            ray_direction = ray_direction.rotate(self.rotation)
+            ray_direction = surface_corner - self.position
 
             intersection = intersect(
                 self.position.array_representation,
                 ray_direction,
-                surface.position,
-                surface.normal_vector
+                canvas_origin,
+                canvas_normal
             )
 
             if intersection is None:
@@ -56,10 +53,10 @@ class Camera(json_inheritor.JsonInheritor):
             return intersection
 
         # lower left, lower right, upper left, upper right
-        factors = [(-1, -1),
-                   ( 1, -1),
-                   (-1,  1),
-                   ( 1,  1)]
+        factors = [(0, 0),
+                   (1, 0),
+                   (0, 1),
+                   (1, 1)]
 
         return [intersection_point(x_factor, y_factor) for x_factor, y_factor in factors]
 
