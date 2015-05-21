@@ -140,10 +140,11 @@ class Surface:
         return svg
 
 class NaiveSurface(Surface):
-    def get_svg_transformed_to(self, mapping, svg_element):
-        lower_left = SvgUtility.into_svg(mapping[0])
-        lower_right = SvgUtility.into_svg(mapping[1])
-        upper_left = SvgUtility.into_svg(mapping[2])
+    # hack: redefined parameters! mapping -> projection
+    def get_svg_transformed_to(self, projection, svg_element):
+        lower_left = SvgUtility.into_svg(projection[0])
+        lower_right = SvgUtility.into_svg(projection[1])
+        upper_left = SvgUtility.into_svg(projection[2])
 
         old_coordinates = [
             lower_left[0], lower_left[1],
@@ -161,9 +162,6 @@ class NaiveSurface(Surface):
             [0, 0, 0, Settings.image.size.y, 0, 1]
         ])
 
-        for i in range(6):
-            print(target_matrix[i], old_coordinates[i])
-
         transform_matrix = numpy.linalg.solve(target_matrix, old_coordinates)
 
         svg_element.set("transform", "matrix(%f %f %f %f %f %f)" % tuple(transform_matrix))
@@ -174,7 +172,6 @@ class NaiveSurface(Surface):
         projection = camera.project_surface(self)
 
         if projection is not None:
-            print(projection)
             return self.get_svg_transformed_to(projection, svg)
 
         return svg
