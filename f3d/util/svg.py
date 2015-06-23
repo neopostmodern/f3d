@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 from f3d.settings import Settings
 
 __author__ = 'neo post modern'
@@ -15,33 +16,57 @@ def from_svg(point):
 
 
 def generate_css3_3d_transformation_matrix(target_area):
-    reference_points = np.array([[0, 0],
-                                 [1920, 0],
-                                 [0, 1080],
-                                 [1920, 1080]])
+    source_points = np.array([[0, 0],
+                              [1920, 0],
+                              [0, 1080],
+                              [1920, 1080]])
 
-    target_matrix = np.zeros((8, 8))
+    matrix = np.zeros((8, 8))
     reference = np.zeros(8)
 
-    for index, target_point in enumerate(target_area):
+    for index, target_point_original in enumerate(target_area):
         row_index = index * 2
-        target_matrix[row_index][0] = target_point[0]
-        target_matrix[row_index][1] = target_point[1]
-        target_matrix[row_index][2] = 1
-        target_matrix[row_index][6] = -1 * target_point[0] * reference_points[index][0]
-        target_matrix[row_index][7] = -1 * target_point[1] * reference_points[index][0]
+        target_point = into_svg(target_point_original)
+        # source_point = source_point_original
 
-        reference[row_index] = reference_points[index][0]
+        source_point = source_points[index]
+        print(source_point, target_point)
 
-        target_matrix[row_index + 1][3] = target_point[0]
-        target_matrix[row_index + 1][4] = target_point[1]
-        target_matrix[row_index + 1][5] = 1
-        target_matrix[row_index + 1][6] = -1 * target_point[0] * reference_points[index][1]
-        target_matrix[row_index + 1][7] = -1 * target_point[1] * reference_points[index][0]
+        # matrix[row_index][0] = target_point[0]
+        # matrix[row_index][1] = target_point[1]
+        # matrix[row_index][2] = 1
+        # matrix[row_index][6] = -1 * target_point[0] * source_point[0]
+        # matrix[row_index][7] = -1 * target_point[1] * source_point[0]
+        #
+        # reference[row_index] = source_point[0]
+        #
+        # matrix[row_index + 1][3] = target_point[0]
+        # matrix[row_index + 1][4] = target_point[1]
+        # matrix[row_index + 1][5] = 1
+        # matrix[row_index + 1][6] = -1 * target_point[0] * source_point[1]
+        # matrix[row_index + 1][7] = -1 * target_point[1] * source_point[1]
+        #
+        # reference[row_index + 1] = source_point[0]
+        
+        matrix[row_index][0] = source_point[0]
+        matrix[row_index][1] = source_point[1]
+        matrix[row_index][2] = 1
+        matrix[row_index][6] = -1 * source_point[0] * target_point[0]
+        matrix[row_index][7] = -1 * source_point[1] * target_point[0]
 
-        reference[row_index + 1] = reference_points[index][0]
+        reference[row_index] = target_point[0]
 
-    T = np.linalg.solve(target_matrix, reference)
+        matrix[row_index + 1][3] = source_point[0]
+        matrix[row_index + 1][4] = source_point[1]
+        matrix[row_index + 1][5] = 1
+        matrix[row_index + 1][6] = -1 * source_point[0] * target_point[1]
+        matrix[row_index + 1][7] = -1 * source_point[1] * target_point[1]
+
+        reference[row_index + 1] = target_point[1]
+
+    print(matrix)
+    print(reference)
+    T = np.linalg.solve(matrix, reference)
 
     transformation_matrix = [
         [T[0], T[3], 0, T[6]],

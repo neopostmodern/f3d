@@ -83,7 +83,7 @@ class FakeFilm:
                 warn("[ERROR] FakeFilm: Unsupported surface type '%s'." % surface['type'])
                 return None  # todo: appropriate error handling?
 
-            return NaiveSurface(surface, svg_provider(surface))  # hack: using naive solution!
+            return Surface(surface, svg_provider(surface))
 
         return [load_surface(surface) for surface in surfaces]
 
@@ -133,8 +133,10 @@ class Surface:
         projection = camera.project_surface(self)
 
         if projection is not None:
+            print(">>>")
             print(projection)
             mapping = SvgUtility.generate_css3_3d_transformation_matrix(projection)
+            print(mapping)
             return self.get_svg_transformed_to(mapping, svg)
 
         return svg

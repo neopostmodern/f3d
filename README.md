@@ -1,5 +1,19 @@
 # F3D - Pseudo-3D generative SVG film scenes
 
+## Command line usage
+```text
+usage: main.py [-h] [-v] [-d] [setting_file]
+
+F3D : Pseudo-3D generative SVG film scenes.
+
+positional arguments:
+  setting_file   File to read setting from [Default: setting.f3d.json]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Produce more output
+  -d, --debug    Produce all debugging output
+```
 
 ## File Format (.f3d.json)
 The setting is stored in JSON. 
