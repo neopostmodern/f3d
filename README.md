@@ -59,7 +59,7 @@ The `project_identifier` is used for the output sub-directory. (Can't currently 
       "z": -1000
     },
 ```
-You can specify a rotation in **radians**:
+You can specify a rotation in **degrees**:
 ```json
     "focal_length": 55
   },

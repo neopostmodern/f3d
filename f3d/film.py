@@ -107,8 +107,10 @@ class Surface:
         self.svg_provider = svg_provider
         self.position = Vector3.from_dict(specification['position'])
 
+        self.meta = specification['meta']
+
         if 'rotation' in specification:
-            self.rotation = Vector3.from_dict(specification['rotation'])
+            self.rotation = Vector3.from_dict(specification['rotation']).convert_to_radian()
         else:
             self.rotation = Vector3(0, 0, 0)
 
@@ -133,7 +135,7 @@ class Surface:
         projection = camera.project_surface(self)
 
         if projection is not None:
-            print(">>>")
+            print(">>> %s" % self.meta['name'])
             mapping = SvgUtility.generate_css3_3d_transformation_matrix(projection)
             return self.get_svg_transformed_to(mapping, svg)
 

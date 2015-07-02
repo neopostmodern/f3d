@@ -79,6 +79,10 @@ class Vector3:
 
         return self
 
+    def convert_to_radian(self):
+        self.array_representation = [math.radians(value) for value in self.array_representation]
+        return self
+
 # todo: implement via subclassing of ndarray http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 class Vector2():
     def __init__(self, x, y):

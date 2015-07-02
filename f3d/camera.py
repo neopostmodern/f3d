@@ -21,7 +21,7 @@ class Camera(json_inheritor.JsonInheritor):
         self.position = Vector3.from_dict(self.position)
 
         if hasattr(self, 'rotation'):
-            self.rotation = Vector3.from_dict(self.rotation)
+            self.rotation = Vector3.from_dict(self.rotation).convert_to_radian()
         else:
             self.rotation = Vector3(0, 0, 0)
 
