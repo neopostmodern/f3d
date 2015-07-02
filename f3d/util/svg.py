@@ -24,6 +24,8 @@ def generate_css3_3d_transformation_matrix(target_area):
     matrix = np.zeros((8, 8))
     reference = np.zeros(8)
 
+    print(target_area)
+
     for index, target_point_original in enumerate(target_area):
         row_index = index * 2
         target_point = into_svg(target_point_original)
@@ -31,22 +33,6 @@ def generate_css3_3d_transformation_matrix(target_area):
 
         source_point = source_points[index]
         print(source_point, target_point)
-
-        # matrix[row_index][0] = target_point[0]
-        # matrix[row_index][1] = target_point[1]
-        # matrix[row_index][2] = 1
-        # matrix[row_index][6] = -1 * target_point[0] * source_point[0]
-        # matrix[row_index][7] = -1 * target_point[1] * source_point[0]
-        #
-        # reference[row_index] = source_point[0]
-        #
-        # matrix[row_index + 1][3] = target_point[0]
-        # matrix[row_index + 1][4] = target_point[1]
-        # matrix[row_index + 1][5] = 1
-        # matrix[row_index + 1][6] = -1 * target_point[0] * source_point[1]
-        # matrix[row_index + 1][7] = -1 * target_point[1] * source_point[1]
-        #
-        # reference[row_index + 1] = source_point[0]
         
         matrix[row_index][0] = source_point[0]
         matrix[row_index][1] = source_point[1]
@@ -64,8 +50,6 @@ def generate_css3_3d_transformation_matrix(target_area):
 
         reference[row_index + 1] = target_point[1]
 
-    print(matrix)
-    print(reference)
     T = np.linalg.solve(matrix, reference)
 
     transformation_matrix = [

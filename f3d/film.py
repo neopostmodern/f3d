@@ -121,7 +121,7 @@ class Surface:
 
     def get_svg_transformed_to(self, mapping, svg_element):
         # todo: review!
-        svg_element.set("style", "transform-origin: 280px 50px 0px; transform: matrix3d(%s);" %
+        svg_element.set("style", "transform: matrix3d(%s);" %  # todo: consider transform-origin: 280px 50px 0px;
                         ", ".join(["%.6f" % value for value in mapping.flatten()]))
 
         # svg_element.set("id", self.identifier)
@@ -134,9 +134,7 @@ class Surface:
 
         if projection is not None:
             print(">>>")
-            print(projection)
             mapping = SvgUtility.generate_css3_3d_transformation_matrix(projection)
-            print(mapping)
             return self.get_svg_transformed_to(mapping, svg)
 
         return svg
