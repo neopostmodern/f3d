@@ -134,10 +134,13 @@ class Surface:
         svg = self.svg_provider.get_for_time(time)
         projection = camera.project_surface(self)
 
-        if projection is not None:
+        if all([p is not None for p in projection]):
             print(">>> %s" % self.meta['name'])
-            mapping = SvgUtility.generate_css3_3d_transformation_matrix(projection)
+            mapping = SvgUtility.generate_css3_3d_transformation_matrix(self, projection)
             return self.get_svg_transformed_to(mapping, svg)
+        else:
+            # todo: proper error handling if projection failed
+            print("Couldn't project surface '%s'" % self.meta['name'])
 
         return svg
 

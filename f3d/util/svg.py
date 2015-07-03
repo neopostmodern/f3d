@@ -15,11 +15,11 @@ def from_svg(point):
             point[1] - 540]
 
 
-def generate_css3_3d_transformation_matrix(target_area):
+def generate_css3_3d_transformation_matrix(surface, target_area):
     source_points = np.array([[0, 0],
-                              [1920, 0],
-                              [0, 1080],
-                              [1920, 1080]])
+                              [surface.size.x, 0],
+                              [0, surface.size.y],
+                              [surface.size.x, surface.size.y]])
 
     matrix = np.zeros((8, 8))
     reference = np.zeros(8)
