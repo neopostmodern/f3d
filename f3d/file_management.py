@@ -6,6 +6,7 @@ __author__ = 'neopostmodern'
 
 import os
 import shutil
+import subprocess as subprocess
 
 from f3d.settings import Settings
 
@@ -45,9 +46,40 @@ class FileManagement():
 
         os.makedirs(path)
 
+    @staticmethod
+    def svg_file_name_for_index(frame_index):
+        return "%s-frame-%04d.svg" % (Settings.project_identifier, frame_index)
+
+    def svg_file_path_for_frame(self, frame_index):
+        return os.path.join(
+            self.svg_output_directory,
+            self.svg_file_name_for_index(frame_index)
+        )
+    
+    @staticmethod
+    def png_file_name_for_index(frame_index):
+        return "%s-frame-%04d.png" % (Settings.project_identifier, frame_index)
+
+    def png_file_path_for_frame(self, frame_index):
+        return os.path.join(
+            self.png_output_directory,
+            self.png_file_name_for_index(frame_index)
+        )
+
     def svg_output(self, frame_index, svg):
-        with open(os.path.join(
-                self.svg_output_directory,
-                "%s-frame-%04d.svg" % (Settings.project_identifier, frame_index)), mode="w"
+        with open(self.svg_file_path_for_frame(frame_index), mode="w"
         ) as output_file:
             output_file.write(etree.tostring(svg, encoding='unicode'))
+
+    # todo: move into different module?
+    def render_svg_to_png(self, frame_index):
+        # https://inkscape.org/en/doc/inkscape-man.html
+        command = ['inkscape',
+                   '-z',  # without GUI
+                   '-f', self.svg_file_path_for_frame(frame_index),
+                   '-w 1920',
+                   '-j',
+                   '-e', self.png_file_path_for_frame(frame_index)]
+
+        subprocess.Popen(command)
+        # subprocess.check_call(command)

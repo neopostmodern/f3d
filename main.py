@@ -38,3 +38,4 @@ except Exception as exception:  # todo: more specific error catching
 
 for index in range(int(Settings.timing['out'] * Settings.frames_per_second)):
     fm.svg_output(index, film.render(index / Settings.frames_per_second))
+    fm.render_svg_to_png(index)
