@@ -25,14 +25,18 @@ class Camera(json_inheritor.JsonInheritor):
         else:
             self.rotation = Vector3(0, 0, 0)
 
-        # todo: implement focal length feature
-        # self.angleOfView = math.radians(angle_of_view / 2)
-        self.angle_of_view = math.radians(40)
+        if not hasattr(self, 'focal_length'):
+            self.focal_length = 55
+
+        # 35 _roughly_ simulates a 35mm film (which is 4:3), the usual reference for focal lengths
+        # assuming that most projects will be 16:9 though, it should be a good estimate
+        self.angle_of_view = 2 * math.atan(35 / (2 * self.focal_length))
 
     def project_surface(self, surface):
         # the camera position will actually be the _canvas_ position.
-        # the camera is moved back as necessary by the 'focal length'
-        # todo: base on focal length (instead of '1000')
+        # the camera is moved back as necessary by the 'focal length', further called `camera_distance`
+        camera_distance = surface.size.x / math.tan(self.angle_of_view / 2)
+
         canvas_normal = Vector3(0, 0, 1).rotate(self.rotation)
         canvas_origin = self.position + Vector3(
             -0.5 * Settings.image.size.x,
@@ -40,7 +44,7 @@ class Camera(json_inheritor.JsonInheritor):
             0
         ).rotate(self.rotation)
 
-        adjusted_camera_position = self.position - canvas_normal.array_representation * 2000
+        adjusted_camera_position = self.position - canvas_normal.array_representation * camera_distance
 
         def intersection_point(x_factor, y_factor):
             surface_corner = Vector3(
