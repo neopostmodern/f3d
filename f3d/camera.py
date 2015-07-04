@@ -26,9 +26,9 @@ class Camera(json_inheritor.JsonInheritor):
             self.rotation = Vector3(0, 0, 0)
 
         if not hasattr(self, 'focal_length'):
-            self.focal_length = 55
+            self.focal_length = 50
 
-        # 35 _roughly_ simulates a 35mm film (which is 4:3), the usual reference for focal lengths
+        # 35 _roughly_ simulates a 35mm format (which is 3:2), the usual reference for focal lengths
         # assuming that most projects will be 16:9 though, it should be a good estimate
         self.angle_of_view = 2 * math.atan(35 / (2 * self.focal_length))
 

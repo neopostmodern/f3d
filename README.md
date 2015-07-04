@@ -20,7 +20,8 @@ The setting is stored in JSON.
 For easier discovery files should end with `.f3d.json` file type.
 Default setting name is `setting.f3d.json` and is assumed to be in the current working directory.
 
-**Definition**
+###Definition
+All meta information will be ignored but can be really helpful and might be used by logging.
 ```json
 {
   "meta": {
@@ -60,8 +61,19 @@ The `project_identifier` is used for the output sub-directory. (Can't currently 
     },
 ```
 You can specify a rotation in **degrees**:
+
 ```json
-    "focal_length": 55
+    "rotation": {
+      "x": 0,
+      "y": 45,
+      "z": 0      
+    },
+```
+The focal length is approximately equivalent to the common reference system 
+of the [35mm format](https://en.wikipedia.org/wiki/35mm_format). 
+(50 being a normal lens and default if omitted.)
+```json
+    "focal_length": 50
   },
   "surfaces": [
     {
@@ -144,6 +156,10 @@ Alternative:
         "identifier": "texture"
       }     
 ```
+The identifier is the ID of the SVG element to extract. 
+This means that you can have many other (non-child) elements in the same SVG that will be ignored.
+Further, you could use the same file several times with different identifiers.
+
 And then finally close off the file
 ```json
     }
