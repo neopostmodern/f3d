@@ -20,6 +20,7 @@ class PngService:
             slimer_file.write(bytes(commands, 'UTF-8'))
             slimer_file.flush()
 
+            # todo: run [headless](http://docs.slimerjs.org/current/installation.html#having-a-headless-slimerjs)
             command = [
                 SLIMER_EXECUTABLE,
                 os.path.abspath(slimer_file.name)
