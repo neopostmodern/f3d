@@ -11,7 +11,22 @@ SLIMER_EXECUTABLE = os.path.join(os.getcwd(), "../slimerjs/slimerjs")
 
 class PngService:
     def __init__(self):
+        # http://stackoverflow.com/a/5209746/2525299
+        # self.executor = ThreadPoolExecutor(max_workers=1)
         pass
+
+    def __execute_slimer_commands(self, commands):
+        with tempfile.NamedTemporaryFile(suffix='.js') as slimer_file:
+            slimer_file.write(bytes(commands, 'UTF-8'))
+            slimer_file.flush()
+
+            command = [
+                SLIMER_EXECUTABLE,
+                os.path.abspath(slimer_file.name)
+            ]
+
+            # subprocess.Popen(command)
+            os.system(' '.join(command))
 
     def render_svg_to_png(self, frame_index):
         slimer_commands = """
@@ -26,14 +41,28 @@ webpage
         """ % ('http://localhost:8000/html/%d' % frame_index,
                FileManagement.png_file_path_for_frame(frame_index))
 
-        with tempfile.NamedTemporaryFile(suffix='.js') as slimer_file:
-            slimer_file.write(bytes(slimer_commands, 'UTF-8'))
-            slimer_file.flush()
+        self.__execute_slimer_commands(slimer_commands)
 
-            command = [
-                SLIMER_EXECUTABLE,
-                os.path.abspath(slimer_file.name)
-            ]
+    def batch_render_svg_to_png(self, frame_count):
+        slimer_command_head = "const { defer } = require('sdk/core/promise');" \
+                              "var webpage = require('webpage').create();" \
+                              "webpage.viewportSize = { width: 1920, height: 1080 };" \
+                              "var deferred = defer();" \
+                              "deferred.resolve();" \
+                              "deferred.promise.then(function () {"
 
-            # subprocess.Popen(command)
-            os.system(' '.join(command))
+        commands = [slimer_command_head]
+
+        for frame_index in range(frame_count):
+            command = "return webpage.open('%s'); }).then(function () { webpage.render('%s', { onlyViewport: true });" % (
+                'http://localhost:8000/html/%d' % frame_index,
+                FileManagement.png_file_path_for_frame(frame_index)
+            )
+
+            commands.append(command)
+
+        commands.append("slimer.exit(); });")
+
+        slimer_commands = ''.join(commands)
+
+        self.__execute_slimer_commands(slimer_commands)

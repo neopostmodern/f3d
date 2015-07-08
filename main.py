@@ -14,7 +14,6 @@ from f3d import film
 __author__ = 'neopostmodern'
 
 
-
 DEFAULT_SETTING_PATH = 'setting.f3d.json'
 
 parser = argparse.ArgumentParser(description='F3D : Pseudo-3D generative SVG film scenes.')
@@ -41,7 +40,11 @@ except Exception as exception:  # todo: more specific error catching
 SvgServer()
 
 png = PngService()
-for frame_index in range(int(Settings.timing['out'] * Settings.frames_per_second)):
+
+frame_count = int(Settings.timing['out'] * Settings.frames_per_second)
+for frame_index in range(frame_count):
     FileManagement.svg_output(frame_index, film.render(frame_index / Settings.frames_per_second))
     # FileManagement.render_svg_to_png(index)
-    png.render_svg_to_png(frame_index)
+    # png.render_svg_to_png(frame_index)
+
+png.batch_render_svg_to_png(frame_count)
