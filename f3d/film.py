@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from f3d.file_management import FileManagement
 
 __author__ = 'neopostmodern'
 
@@ -59,6 +60,7 @@ class FakeFilm:
             raise Exception("[FakeFilm] Settings file '%s' not found." % setting_path) from fileError
 
         Settings.set(setting['settings'])
+        FileManagement.initialize()  # hack: depends on settings being loaded!
 
         self.camera = Camera(setting['camera'])
         # todo: image object? (properties moved into common settings...)
@@ -123,8 +125,10 @@ class Surface:
 
     def get_svg_transformed_to(self, mapping, svg_element):
         # todo: review!
-        svg_element.set("style", "transform: matrix3d(%s);" %  # todo: consider transform-origin: 280px 50px 0px;
-                        ", ".join(["%.6f" % value for value in mapping.flatten()]))
+        transformation = ", ".join(["%.6f" % value for value in mapping.flatten()])
+        transformations = " ".join(["%stransform: matrix3d(%s);" % (prefix, transformation) for prefix in ["-webkit-", ""]])
+
+        svg_element.set("style", transformations)  # todo: consider transform-origin: 280px 50px 0px;
 
         # svg_element.set("id", self.identifier)
         # svg_element.set("opacity", str(self.opacity))

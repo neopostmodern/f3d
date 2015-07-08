@@ -6,11 +6,14 @@ import logging
 import os
 
 from f3d.file_management import FileManagement
+from f3d.rendering.png_service import PngService
+from f3d.rendering.svg_server import SvgServer
 from f3d.settings import Settings
+from f3d import film
 
 __author__ = 'neopostmodern'
 
-from f3d import film
+
 
 DEFAULT_SETTING_PATH = 'setting.f3d.json'
 
@@ -30,12 +33,15 @@ logging.info("Verbose ('info') output enabled.")
 
 try:
     film = film.FakeFilm(os.path.join(os.getcwd(), arguments.setting_file))
-    fm = FileManagement()
 except Exception as exception:  # todo: more specific error catching
     print("Fatal error during initialization: ")
     print(exception)
     exit(1)
 
-for index in range(int(Settings.timing['out'] * Settings.frames_per_second)):
-    fm.svg_output(index, film.render(index / Settings.frames_per_second))
-    fm.render_svg_to_png(index)
+SvgServer()
+
+png = PngService()
+for frame_index in range(int(Settings.timing['out'] * Settings.frames_per_second)):
+    FileManagement.svg_output(frame_index, film.render(frame_index / Settings.frames_per_second))
+    # FileManagement.render_svg_to_png(index)
+    png.render_svg_to_png(frame_index)

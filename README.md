@@ -1,5 +1,7 @@
 # F3D - Pseudo-3D generative SVG film scenes
 
+**Important Notice** SlimerJs is now a mandatory requirement and the executable is [for now] assumed to be located at `../slimerjs/slimerjs`.
+
 ## Command line usage
 ```text
 usage: main.py [-h] [-v] [-d] [setting_file]
@@ -169,7 +171,7 @@ And then finally close off the file
 
 
 ## File Structure
-*(The structure can be renamed, but restructured through the setting.)*
+*(The structure can be renamed, but not restructured through the setting.)*
 
 ```plain
 setting.f3d.json

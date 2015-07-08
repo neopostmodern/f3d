@@ -11,8 +11,8 @@ import subprocess as subprocess
 from f3d.settings import Settings
 
 
-class FileManagement():
-    def __init__(self):
+class _FileManagement():
+    def initialize(self):
         self.svg_output_base_directory = os.path.join(
             os.getcwd(),
             Settings.paths['svg_output']
@@ -51,6 +51,11 @@ class FileManagement():
         return "%s-frame-%04d.svg" % (Settings.project_identifier, frame_index)
 
     def svg_file_path_for_frame(self, frame_index):
+        """
+        :type frame_index: int
+        :param frame_index: The frame index (not time!)
+        :return: Absolute file path to the SVG
+        """
         return os.path.join(
             self.svg_output_directory,
             self.svg_file_name_for_index(frame_index)
@@ -67,19 +72,33 @@ class FileManagement():
         )
 
     def svg_output(self, frame_index, svg):
-        with open(self.svg_file_path_for_frame(frame_index), mode="w"
-        ) as output_file:
+        with open(self.svg_file_path_for_frame(frame_index), mode="w") as output_file:
             output_file.write(etree.tostring(svg, encoding='unicode'))
 
     # todo: move into different module?
+
+    # todo: currently doesn't support matrix3d transformations
+    # alternatives:
+    # - http://www.paulhammond.org/webkit2png/
+    # - https://github.com/FWeinb/nodeshot
     def render_svg_to_png(self, frame_index):
         # https://inkscape.org/en/doc/inkscape-man.html
-        command = ['inkscape',
-                   '-z',  # without GUI
-                   '-f', self.svg_file_path_for_frame(frame_index),
-                   '-w 1920',
-                   '-j',
-                   '-e', self.png_file_path_for_frame(frame_index)]
+        # command = ['inkscape',
+        #            '-z',  # without GUI
+        #            '-f', self.svg_file_path_for_frame(frame_index),
+        #            '-w 1920',
+        #            '-j',
+        #            '-e', self.png_file_path_for_frame(frame_index)]
+
+        # http://wkhtmltopdf.org/
+        command = ['wkhtmltoimage',
+                   self.svg_file_path_for_frame(frame_index),
+                   self.png_file_path_for_frame(frame_index)]
+
+        print(" ".join(command))
 
         subprocess.Popen(command)
         # subprocess.check_call(command)
+
+# make singleton
+FileManagement = _FileManagement()
