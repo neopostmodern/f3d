@@ -15,6 +15,10 @@ from f3d.file_management import FileManagement
 PORT = 8000
 
 class SvgRequestHandler(http.server.BaseHTTPRequestHandler):
+    # ignore the log for every connection coming in: http://stackoverflow.com/a/3389505/2525299
+    def log_message(self, _format, *args):
+        return
+
     def do_GET(self):
         # todo: make 'static'
 
