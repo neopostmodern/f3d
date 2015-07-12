@@ -9,8 +9,7 @@ import re as regex
 import numpy as numpy
 import scipy.interpolate.interpolate as interpolate
 
-import f3d.isvg.interpolation as interpolation_utils
-
+from f3d.util.ranged_function import RangedFunction
 
 NUMBER_REGEX = regex.compile('-?\d+(?:\.\d+)?')
 
@@ -57,14 +56,14 @@ class Interpolation(BaseAnimation):
                         interpolation_values[match_index][keyframe_index] = float(match.group())
 
                 interpolations = [
-                    interpolation_utils.RangedInterpolation(
-                        interpolate.interp1d(timestamps, series), time_range
+                    RangedFunction(
+                        interpolate.interp1d(timestamps, series),
+                        time_range
                     )
                     for series in interpolation_values
                 ]
 
                 self.interpolations[element_name][property_name] = interpolations
-
 
     @staticmethod
     def apply_interpolation(frame, element_name, property_name, values):

@@ -6,7 +6,7 @@ __author__ = 'neopostmodern'
 from numpy import clip
 
 
-class RangedInterpolation():
+class RangedFunction:
     def __init__(self, function, time_range):
         self.function = function
         self.start_time = time_range[0]

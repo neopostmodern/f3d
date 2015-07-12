@@ -24,7 +24,7 @@ def generate_css3_3d_transformation_matrix(surface, target_area):
     matrix = np.zeros((8, 8))
     reference = np.zeros(8)
 
-    print(target_area)
+    # print(target_area)
 
     for index, target_point_original in enumerate(target_area):
         row_index = index * 2
@@ -32,7 +32,7 @@ def generate_css3_3d_transformation_matrix(surface, target_area):
         # source_point = source_point_original
 
         source_point = source_points[index]
-        print(source_point, target_point)
+        # print(source_point, target_point)
         
         matrix[row_index][0] = source_point[0]
         matrix[row_index][1] = source_point[1]

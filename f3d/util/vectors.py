@@ -8,7 +8,29 @@ import math
 
 
 class Vector3:
-    def __init__(self, x, y, z):
+    def __init__(self, *args, **kwargs):
+        if len(args) is 0:
+            x = 0
+            y = 0
+            z = 0
+
+        elif len(args) is 3:
+            # assume they passed x, y, z
+            [x, y, z] = args
+
+        else:
+            argument = args[0]
+
+            # todo: don't explicitly type, ducking!
+            if isinstance(argument, dict):
+                x, y, z = argument['x'], argument['y'], argument['z']
+
+            elif hasattr(argument, "__getitem__"):
+                [x, y, z] = argument
+
+            else:
+                raise ValueError("Can't create Vector3 with", argument)
+
         self.x = x
         self.y = y
         self.z = z
@@ -50,6 +72,12 @@ class Vector3:
     def from_dict(cls, dict_like):
         return cls(dict_like['x'], dict_like['y'], dict_like['z'])
 
+    @classmethod
+    def from_list(cls, array_like):
+        instance = cls(0, 0, 0)
+        instance.array_representation = array_like  # todo: performance!!!
+        return instance
+
     @staticmethod
     def rotation_matrix_x(angle):
         return numpy.array([[1, 0, 0],
@@ -68,6 +96,7 @@ class Vector3:
                             [math.sin(angle), math.cos(angle), 0],
                             [0, 0, 1]])
 
+    # todo: https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula#Statement
     def rotate(self, rotation):
         rotated_vector = self.array_representation
 
