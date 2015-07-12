@@ -27,6 +27,8 @@ def generate_css3_3d_transformation_matrix(surface, target_area):
     # print(target_area)
 
     for index, target_point_original in enumerate(target_area):
+        # formula derived from: http://bl.ocks.org/mbostock/10571478
+
         row_index = index * 2
         target_point = into_svg(target_point_original)
         # source_point = source_point_original
