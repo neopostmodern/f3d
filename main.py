@@ -4,6 +4,8 @@
 import argparse
 import logging
 import os
+import traceback
+import sys
 
 from f3d.file_management import FileManagement
 from f3d.rendering.png_service import PngService
@@ -25,16 +27,39 @@ parser.add_argument('-d', '--debug', help='Produce all debugging output',
                     action="store_const", dest="log_level", const=logging.DEBUG)
 
 arguments = parser.parse_args()
-logging.basicConfig(level=arguments.log_level)
 
-logging.debug("Debugging ('debug') output enabled.")
-logging.info("Verbose ('info') output enabled.")
+# configure logging
+logging.basicConfig(level=arguments.log_level, stream=sys.stdout)
+# hack: http://stackoverflow.com/questions/3105521/google-app-engine-python-change-logging-formatting/3105859#3105859
+logging.getLogger().handlers[0].setFormatter(logging.Formatter("%(levelname)-8s %(message)s"))  # "%(asctime)s >
+
+def add_coloring_to_emit_ansi(fn):
+    # add methods we need to the class
+    def new(*args):
+        levelno = args[1].levelno
+        if(levelno>=50):
+            color = '\x1b[31m' # red
+        elif(levelno>=40):
+            color = '\x1b[31m' # red
+        elif(levelno>=30):
+            color = '\x1b[33m' # yellow
+        elif(levelno>=20):
+            color = '\x1b[32m' # green
+        elif(levelno>=10):
+            color = '\x1b[35m' # pink
+        else:
+            color = '\x1b[0m' # normal
+        args[1].msg = color + str(args[1].msg) +  '\x1b[0m'  # normal
+        return fn(*args)
+    return new
+logging.StreamHandler.emit = add_coloring_to_emit_ansi(logging.StreamHandler.emit)
 
 try:
     film = film.FakeFilm(os.path.join(os.getcwd(), arguments.setting_file))
 except Exception as exception:  # todo: more specific error catching
-    print("Fatal error during initialization: ")
-    print(exception)
+    logging.error("Fatal error during initialization: ")
+    logging.error(exception)
+    logging.debug(traceback.format_exc())
     exit(1)
 
 SvgServer()
@@ -42,9 +67,14 @@ SvgServer()
 png = PngService()
 
 frame_count = int(Settings.timing['out'] * Settings.frames_per_second)
+
+logging.info("Starting SVG creation...")
 for frame_index in range(frame_count):
     FileManagement.svg_output(frame_index, film.render(frame_index / Settings.frames_per_second))
     # FileManagement.render_svg_to_png(index)
     # png.render_svg_to_png(frame_index)
+logging.info("SVG creation complete.")
 
+logging.info("Starting SVG to PNG rendering...")
 png.batch_render_svg_to_png(frame_count)
+logging.info("SVG to PNG rendering complete.")
