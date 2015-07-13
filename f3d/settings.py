@@ -30,4 +30,7 @@ class _Settings():
 
         self.image = Image(self.image)
 
+    def add(self, name, value):
+        setattr(self, name, value)
+
 Settings = _Settings()

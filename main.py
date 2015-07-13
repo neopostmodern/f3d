@@ -25,8 +25,12 @@ parser.add_argument('-v', '--verbose', help='Produce more output',
                     action="store_const", dest="log_level", const=logging.INFO)
 parser.add_argument('-d', '--debug', help='Produce all debugging output',
                     action="store_const", dest="log_level", const=logging.DEBUG)
+parser.add_argument('-s', '--headless', help='Run headless (opens no windows, previews etc.)',
+                    action="store_const", dest="headless", const=True, default=False)
 
 arguments = parser.parse_args()
+
+Settings.add('headless', arguments.headless)
 
 # configure logging
 logging.basicConfig(level=arguments.log_level, stream=sys.stdout)

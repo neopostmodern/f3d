@@ -4,6 +4,7 @@ import os
 import subprocess
 import tempfile
 from f3d.file_management import FileManagement
+from f3d.settings import Settings
 
 __author__ = 'neopostmodern'
 
@@ -25,6 +26,9 @@ class PngService:
                 SLIMER_EXECUTABLE,
                 os.path.abspath(slimer_file.name)
             ]
+
+            if Settings.headless:
+                command.insert(0, 'xvfb-run')
 
             # subprocess.Popen(command)
             os.system(' '.join(command))
