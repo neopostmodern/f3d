@@ -15,24 +15,29 @@ class Camera(json_inheritor.JsonInheritor):
     def __init__(self, specification):
         super().__init__(specification)
 
+        position = Vector3.from_dict(self.position)
+
+        if hasattr(self, 'rotation'):
+            rotation = Vector3.from_dict(self.rotation).convert_to_radian()
+        else:
+            rotation = Vector3()
+
         if getattr(self, 'animated', False) is True:
             self.position = AnimatedVector3(
                 self.animation,
                 identifier='position',
-                constructor=Vector3
+                constructor=Vector3,
+                default=position
             )
             self.rotation = AnimatedVector3(
                 self.animation,
                 identifier='rotation',
-                constructor=lambda rotation: Vector3(rotation).convert_to_radian()
+                constructor=lambda rotation: Vector3(rotation).convert_to_radian(),
+                default=rotation
             )
         else:
-            self.position = StaticVector3(Vector3.from_dict(self.position))
-
-            if hasattr(self, 'rotation'):
-                self.rotation = Vector3.from_dict(self.rotation).convert_to_radian()
-            else:
-                self.rotation = StaticVector3(Vector3(0, 0, 0))
+            self.position = StaticVector3(position)
+            self.rotation = StaticVector3(rotation)
 
         if not hasattr(self, 'focal_length'):
             self.focal_length = 50
