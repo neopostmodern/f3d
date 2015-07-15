@@ -60,6 +60,11 @@ class AnimatedVector3(BaseAnimatedVector3):
                 raise ValueError("Missing value: No default or value '%s' found for animation." % identifier)
             default = self.constructor(first_frame[identifier])  # possibly redundant but important
 
+        if float(first_frame['time']) is not 0:
+            animation.insert(0, {
+                'time': '0.0'
+            })
+
         timestamps = []
         values = []
         for frame in animation:
