@@ -15,14 +15,22 @@ class Camera(json_inheritor.JsonInheritor):
     def __init__(self, specification):
         super().__init__(specification)
 
-        position = Vector3.from_dict(self.position)
+        is_animated = getattr(self, 'animated', False) is True
+
+        if hasattr(self, 'position'):
+            position = Vector3.from_dict(self.position)
+        else:
+            if is_animated:
+                position = None
+            else:
+                raise ValueError("Camera defined without position (and no animation)")
 
         if hasattr(self, 'rotation'):
             rotation = Vector3.from_dict(self.rotation).convert_to_radian()
         else:
             rotation = Vector3()
 
-        if getattr(self, 'animated', False) is True:
+        if is_animated:
             self.position = AnimatedVector3(
                 self.animation,
                 identifier='position',
@@ -32,7 +40,7 @@ class Camera(json_inheritor.JsonInheritor):
             self.rotation = AnimatedVector3(
                 self.animation,
                 identifier='rotation',
-                constructor=lambda rotation: Vector3(rotation).convert_to_radian(),
+                constructor=lambda r: Vector3(r).convert_to_radian(),
                 default=rotation
             )
         else:
