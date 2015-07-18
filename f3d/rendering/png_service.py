@@ -8,7 +8,8 @@ from f3d.settings import Settings
 
 __author__ = 'neopostmodern'
 
-SLIMER_EXECUTABLE = os.path.join(os.getcwd(), "../slimerjs/slimerjs")
+SLIMER_EXECUTABLE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../slimerjs/slimerjs")
+
 
 class PngService:
     def __init__(self):
