@@ -4,7 +4,7 @@
 import math
 
 from f3d.util.vectors import Vector3, intersect
-from f3d.util.animated_vectors import StaticVector3, AnimatedVector
+from f3d.util.animated_vectors import StaticVector, AnimatedVector
 from f3d.tools_3d.object_3d import Object3D
 from f3d.settings import Settings
 
@@ -41,10 +41,11 @@ class Camera(Object3D):
 
         surface_rotation = surface.rotation(time)
         surface_position = surface.position(time)
+        surface_size = surface.target_size(time)
 
         # the camera position will actually be the _canvas_ position.
         # the camera is moved back as necessary by the 'focal length', further called `camera_distance`
-        camera_distance = surface.size.x / math.tan(self.angle_of_view / 2)
+        camera_distance = Settings.image.size.x / math.tan(self.angle_of_view / 2)
 
         canvas_normal = Vector3(0, 0, 1).rotate(camera_rotation)
         canvas_origin = camera_position + Vector3(
@@ -57,8 +58,8 @@ class Camera(Object3D):
 
         def intersection_point(x_factor, y_factor):
             surface_corner = Vector3(
-                surface.size.x * x_factor,
-                surface.size.y * y_factor,
+                surface_size.x * x_factor,
+                surface_size.y * y_factor,
                 0
             ).rotate(surface_rotation)\
                 + surface_position

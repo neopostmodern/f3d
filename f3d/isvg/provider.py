@@ -40,7 +40,8 @@ class StaticSvgProvider(BaseSvgProvider):
         try:
             with open(file_path, 'r') as svg_file:
                 svg_tree = etree.parse(svg_file)
-                # todo: unset IDs - collisions! or are they necessary somewhere?
+                # todo: unset IDs
+                # collisions! or are they necessary somewhere?
                 self.frame = svg_tree.find("//*[@id='%s']" % frame_description['identifier'])
         except FileNotFoundError as fileNotFoundException:
             raise Exception("[ERROR] SVG Provider: File '%s' not found!" % file_path) from fileNotFoundException

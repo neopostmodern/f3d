@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 import math
-from f3d.util.animated_vectors import AnimatedVector, StaticVector3
+from f3d.util.animated_vectors import AnimatedVector, StaticVector
 from f3d.util.vectors import Vector3
 
 __author__ = 'neopostmodern'
@@ -9,7 +9,6 @@ __author__ = 'neopostmodern'
 
 class Object3D:
     def __init__(self, specification):
-
         is_animated = 'animation' in specification
 
         if 'position' in specification:
@@ -43,5 +42,5 @@ class Object3D:
                 default=rotation
             )
         else:
-            self.position = StaticVector3(position)
-            self.rotation = StaticVector3(rotation)
+            self.position = StaticVector(position)
+            self.rotation = StaticVector(rotation)

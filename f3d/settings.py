@@ -4,18 +4,14 @@ from f3d.util.vectors import Vector2
 
 __author__ = 'neopostmodern'
 
-from f3d.util.json_inheritor import JsonInheritor
-
 
 # todo: make private or similar
-class Image(JsonInheritor):
+class Image:
     def __init__(self, specification):
-        super().__init__(specification)
+        if 'size' in specification:
+            self.size = Vector2.from_dict(specification['size'], ['width', 'height'])
 
-        if hasattr(self, 'size'):
-            self.size = Vector2.from_dict(self.size, ['width', 'height'])
-
-        if not hasattr(self, 'input_size'):
+        if 'input_size' not in specification:
             self.input_size = self.size  # todo: probably doesn't make sense!
             self.output_size = self.size
 
@@ -24,7 +20,7 @@ class Image(JsonInheritor):
         # todo: fail if none above present
 
 
-class _Settings():
+class _Settings:
     def set(self, settings):
         self.__dict__.update(settings)
 

@@ -103,6 +103,7 @@ class FakeFilm:
 
         return container
 
+
 class NaiveSurface(Surface):
     # hack: redefined parameters! mapping -> projection
     def get_svg_transformed_to(self, projection, svg_element):

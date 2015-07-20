@@ -1,5 +1,4 @@
 import numpy as np
-from copy import deepcopy
 from f3d.settings import Settings
 
 __author__ = 'neo post modern'
@@ -15,11 +14,11 @@ def from_svg(point):
             point[1] - 540]
 
 
-def generate_css3_3d_transformation_matrix(surface, target_area):
+def generate_css3_3d_transformation_matrix(surface_size, target_area):
     source_points = np.array([[0, 0],
-                              [surface.size.x, 0],
-                              [0, surface.size.y],
-                              [surface.size.x, surface.size.y]])
+                              [surface_size.x, 0],
+                              [0, surface_size.y],
+                              [surface_size.x, surface_size.y]])
 
     matrix = np.zeros((8, 8))
     reference = np.zeros(8)

@@ -11,7 +11,7 @@ from f3d.util.vectors import Vector3
 __author__ = 'neopostmodern'
 
 
-class BaseAnimatedVector3(object):
+class BaseAnimatedVector(object):
     __metaclass__ = abc.ABCMeta
 
     def __call__(self, *args, **kwargs):
@@ -29,7 +29,7 @@ class BaseAnimatedVector3(object):
         return
 
 
-class StaticVector3(BaseAnimatedVector3):
+class StaticVector(BaseAnimatedVector):
     """
     Naive wrapper for a Vector3 object, to comply with AnimatedVector3.
     Always returns the vector it's instantiated with.
@@ -41,7 +41,7 @@ class StaticVector3(BaseAnimatedVector3):
         return self.vector
 
 
-class AnimatedVector(BaseAnimatedVector3):
+class AnimatedVector(BaseAnimatedVector):
     def __init__(self, animation, identifier=None, default=None, constructor=None):
         if constructor is not None:
             self.constructor = constructor
