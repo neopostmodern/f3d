@@ -1,30 +1,25 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 from f3d.settings import Settings
-from f3d.util import svg as SvgUtility
-from f3d.util.vectors import Vector3, Vector2
+from f3d.tools_3d.object_3d import Object3D
+from f3d.tools_3d import svg_3d as SvgUtility
+from f3d.util.vectors import Vector2
 
 __author__ = 'neopostmodern'
 
 
-class Surface:
+class Surface(Object3D):
     def __init__(self, specification, svg_provider):
+        super().__init__(specification)
+
         self.svg_provider = svg_provider
-        self.position = Vector3.from_dict(specification['position'])
 
         self.meta = specification['meta']
-
-        if 'rotation' in specification:
-            self.rotation = Vector3.from_dict(specification['rotation']).convert_to_radian()
-        else:
-            self.rotation = Vector3(0, 0, 0)
 
         if 'size' in specification:
             self.size = Vector2.from_dict(specification['size'], ['width', 'height'])
         else:
             self.size = Settings.image.size
-
-        self.normal_vector = Vector3(0, 0, 1).rotate(self.rotation)
 
     def get_svg_transformed_to(self, mapping, svg_element):
         # todo: review!

@@ -41,12 +41,16 @@ class StaticVector3(BaseAnimatedVector3):
         return self.vector
 
 
-class AnimatedVector3(BaseAnimatedVector3):
+class AnimatedVector(BaseAnimatedVector3):
     def __init__(self, animation, identifier=None, default=None, constructor=None):
         if constructor is not None:
             self.constructor = constructor
         else:
             self.constructor = lambda x: x
+
+        # consider: filtering frames based on if the property is present
+        # would make animations of properties cross across other keyframes if they aren't mentioned
+        # not yet sure how to handle conflict with automatic identifier pick-up and/or 0-time-frame insertion
 
         first_frame = animation[0]
 
@@ -71,7 +75,7 @@ class AnimatedVector3(BaseAnimatedVector3):
             timestamps.append(float(frame['time']))
 
             if identifier in frame:
-                value = default = Vector3.from_dict(frame[identifier])  # todo: make generic
+                value = default = self.constructor(frame[identifier])
             else:
                 # consider: only using 'default' for first/last frame?
                 value = default

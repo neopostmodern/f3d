@@ -14,7 +14,7 @@ import numpy as numpy
 from f3d.isvg import provider
 from f3d.settings import Settings
 from f3d.camera import Camera
-import f3d.util.svg as SvgUtility
+import f3d.tools_3d.svg_3d as SvgUtility
 
 CONTAINER_SVG = """<?xml version="1.0" standalone="no"?>
 <svg

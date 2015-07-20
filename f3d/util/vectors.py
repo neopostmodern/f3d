@@ -96,15 +96,13 @@ class Vector3:
                             [math.sin(angle), math.cos(angle), 0],
                             [0, 0, 1]])
 
-    # todo: https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula#Statement
     def rotate(self, rotation):
-        rotated_vector = self.array_representation
+        rotation_matrix = numpy.identity(3)
+        rotation_matrix = Vector3.rotation_matrix_x(rotation.x).dot(rotation_matrix)
+        rotation_matrix = Vector3.rotation_matrix_y(rotation.y).dot(rotation_matrix)
+        rotation_matrix = Vector3.rotation_matrix_z(rotation.z).dot(rotation_matrix)
 
-        rotated_vector = Vector3.rotation_matrix_x(rotation.x).dot(rotated_vector)
-        rotated_vector = Vector3.rotation_matrix_y(rotation.y).dot(rotated_vector)
-        rotated_vector = Vector3.rotation_matrix_z(rotation.z).dot(rotated_vector)
-
-        self.array_representation = rotated_vector
+        self.array_representation = rotation_matrix.dot(self.array_representation)
 
         return self
 

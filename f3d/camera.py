@@ -1,53 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__ = 'neopostmodern'
-
 import math
 
 from f3d.util.vectors import Vector3, intersect
-from f3d.util.animated_vectors import StaticVector3, AnimatedVector3
-from f3d.util import json_inheritor
+from f3d.util.animated_vectors import StaticVector3, AnimatedVector
+from f3d.tools_3d.object_3d import Object3D
 from f3d.settings import Settings
 
+__author__ = 'neopostmodern'
 
-class Camera(json_inheritor.JsonInheritor):
+
+class Camera(Object3D):
     def __init__(self, specification):
         super().__init__(specification)
 
-        is_animated = getattr(self, 'animated', False) is True
-
-        if hasattr(self, 'position'):
-            position = Vector3.from_dict(self.position)
+        # todo: replace with pythonic one-liner
+        if 'focal_length' in specification:
+            self.focal_length = int(specification['focal_length'])
         else:
-            if is_animated:
-                position = None
-            else:
-                raise ValueError("Camera defined without position (and no animation)")
-
-        if hasattr(self, 'rotation'):
-            rotation = Vector3.from_dict(self.rotation).convert_to_radian()
-        else:
-            rotation = Vector3()
-
-        if is_animated:
-            self.position = AnimatedVector3(
-                self.animation,
-                identifier='position',
-                constructor=Vector3,
-                default=position
-            )
-            self.rotation = AnimatedVector3(
-                self.animation,
-                identifier='rotation',
-                constructor=lambda r: Vector3(r).convert_to_radian(),
-                default=rotation
-            )
-        else:
-            self.position = StaticVector3(position)
-            self.rotation = StaticVector3(rotation)
-
-        if not hasattr(self, 'focal_length'):
             self.focal_length = 50
 
         # 35 _roughly_ simulates a 35mm format (which is 3:2), the usual reference for focal lengths
@@ -65,29 +36,32 @@ class Camera(json_inheritor.JsonInheritor):
         lower left, lower right, upper left, upper right
         """
 
-        position = self.position(time)
-        rotation = self.rotation(time)
+        camera_position = self.position(time)
+        camera_rotation = self.rotation(time)
+
+        surface_rotation = surface.rotation(time)
+        surface_position = surface.position(time)
 
         # the camera position will actually be the _canvas_ position.
         # the camera is moved back as necessary by the 'focal length', further called `camera_distance`
         camera_distance = surface.size.x / math.tan(self.angle_of_view / 2)
 
-        canvas_normal = Vector3(0, 0, 1).rotate(rotation)
-        canvas_origin = position + Vector3(
+        canvas_normal = Vector3(0, 0, 1).rotate(camera_rotation)
+        canvas_origin = camera_position + Vector3(
             -0.5 * Settings.image.size.x,
             -0.5 * Settings.image.size.y,
             0
-        ).rotate(rotation)
+        ).rotate(camera_rotation)
 
-        adjusted_camera_position = position - canvas_normal.array_representation * camera_distance
+        adjusted_camera_position = camera_position - canvas_normal.array_representation * camera_distance
 
         def intersection_point(x_factor, y_factor):
             surface_corner = Vector3(
                 surface.size.x * x_factor,
                 surface.size.y * y_factor,
                 0
-            ).rotate(surface.rotation)\
-                + surface.position
+            ).rotate(surface_rotation)\
+                + surface_position
 
             ray_direction = surface_corner - adjusted_camera_position
 
