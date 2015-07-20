@@ -6,6 +6,7 @@ import logging
 import os
 import traceback
 import sys
+import time
 
 from f3d.file_management import FileManagement
 from f3d.rendering.png_service import PngService
@@ -14,6 +15,8 @@ from f3d.settings import Settings
 from f3d import film
 
 __author__ = 'neopostmodern'
+
+__start_time = time.perf_counter()
 
 
 DEFAULT_SETTING_PATH = 'setting.f3d.json'
@@ -58,6 +61,9 @@ def add_coloring_to_emit_ansi(fn):
     return new
 logging.StreamHandler.emit = add_coloring_to_emit_ansi(logging.StreamHandler.emit)
 
+logging.info("Hello. This is F3D!")
+logging.debug("Selected setting file: %s (as %s)" % (arguments.setting_file, os.path.join(os.getcwd(), arguments.setting_file)))
+
 try:
     film = film.FakeFilm(os.path.join(os.getcwd(), arguments.setting_file))
 except Exception as exception:  # todo: more specific error catching
@@ -88,3 +94,6 @@ except Exception as exception:  # todo: more specific error catching
     logging.debug(traceback.format_exc())
     exit(1)
 
+__end_time = time.perf_counter()
+
+logging.info("We're done, it took just %.2f seconds. Good bye!" % (__end_time - __start_time))
