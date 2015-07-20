@@ -66,9 +66,6 @@ except Exception as exception:  # todo: more specific error catching
     logging.debug(traceback.format_exc())
     exit(1)
 
-SvgServer()
-
-png = PngService()
 
 frame_count = int(Settings.timing['out'] * Settings.frames_per_second)
 
@@ -79,6 +76,15 @@ for frame_index in range(frame_count):
     # png.render_svg_to_png(frame_index)
 logging.info("SVG creation complete.")
 
-logging.info("Starting SVG to PNG rendering...")
-png.batch_render_svg_to_png(frame_count)
-logging.info("SVG to PNG rendering complete.")
+try:
+    logging.info("Starting SVG to PNG rendering...")
+    SvgServer()
+    png = PngService()
+    png.batch_render_svg_to_png(frame_count)
+    logging.info("SVG to PNG rendering complete.")
+except Exception as exception:  # todo: more specific error catching
+    logging.error("Fatal error during rendering: ")
+    logging.error(exception)
+    logging.debug(traceback.format_exc())
+    exit(1)
+

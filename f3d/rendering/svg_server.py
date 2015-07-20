@@ -99,9 +99,16 @@ class SvgRequestHandler(http.server.BaseHTTPRequestHandler):
 
 class SvgServer:
     def __init__(self):
-        self.server = http.server.HTTPServer(('', PORT), SvgRequestHandler)
-        # http://stackoverflow.com/a/6640475/2525299
-        self.server_thread = threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        try:
+            self.server = http.server.HTTPServer(('', PORT), SvgRequestHandler)
+            # http://stackoverflow.com/a/6640475/2525299
+            self.server_thread = threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        except OSError as os_error:
+            if os_error.errno is 98:
+                raise Exception("[SVG Server] Couldn't start server. Port '%d' already in use. "
+                                "Is another instance of F3D running?" % PORT) from os_error
+            else:
+                raise os_error
 
     # todo: how to call this with threading?
     def stop(self):
