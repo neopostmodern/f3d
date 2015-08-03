@@ -86,7 +86,7 @@ try:
     logging.info("Starting SVG to PNG rendering...")
     SvgServer()
     png = PngService()
-    png.batch_render_svg_to_png(frame_count)
+    png.batch_render_svg_to_png(range(frame_count))
     logging.info("SVG to PNG rendering complete.")
 except Exception as exception:  # todo: more specific error catching
     logging.error("Fatal error during rendering: ")

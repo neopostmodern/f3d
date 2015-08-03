@@ -10,6 +10,8 @@ __author__ = 'neopostmodern'
 
 SLIMER_EXECUTABLE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../slimerjs/slimerjs")
 
+# todo: enable transparent rendering
+# one (bad) approach: https://github.com/laurentj/slimerjs/issues/154#issuecomment-58495876
 
 class PngService:
     def __init__(self):
@@ -48,7 +50,8 @@ webpage
 
         self.__execute_slimer_commands(slimer_commands)
 
-    def batch_render_svg_to_png(self, frame_count):
+    # todo: enable parallel rendering
+    def batch_render_svg_to_png(self, frame_indices):
         slimer_command_head = "const { defer } = require('sdk/core/promise');" \
                               "var webpage = require('webpage').create();" \
                               "webpage.viewportSize = { width: 1920, height: 1080 };" \
@@ -58,7 +61,7 @@ webpage
 
         commands = [slimer_command_head]
 
-        for frame_index in range(frame_count):
+        for frame_index in frame_indices:
             command = "return webpage.open('%s'); }).then(function () { webpage.render('%s', { onlyViewport: true });" % (
                 'http://localhost:8000/html/%d' % frame_index,
                 FileManagement.png_file_path_for_frame(frame_index)
