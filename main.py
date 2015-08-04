@@ -32,11 +32,14 @@ parser.add_argument('-s', '--headless', help='Run headless (opens no windows, pr
                     action="store_const", dest="headless", const=True, default=False)
 parser.add_argument('-t', '--transparent', help='Alpha channel for output files [Very slow!]',
                     action="store_const", dest="transparent", const=True, default=False)
+parser.add_argument('-m', '--tmpfs', help='Try to write temporary files to RAM',
+                    action="store_const", dest="tmpfs", const=True, default=False)
 
 arguments = parser.parse_args()
 
 Settings.add('headless', arguments.headless)
 Settings.add('transparent', arguments.transparent)
+Settings.add('in_memory_storage', arguments.tmpfs)
 
 # configure logging
 logging.basicConfig(level=arguments.log_level, stream=sys.stdout)

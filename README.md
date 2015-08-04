@@ -2,12 +2,13 @@
 
 ## Requirements
 *Currently there is no automated process to install the dependencies.*
+- **Linux/Ubuntu** - To be honest, I've only tested it on Ubuntu 15.04. It currently hard codes values such as `/run/shm`, so it's pretty platform dependent.
 - **SlimerJs** is now a mandatory requirement and the executable is [for now] assumed to be located at `slimerjs/slimerjs`
 - `convert` i.e. ImageMagick (until [this](https://github.com/laurentj/slimerjs/issues/154) is solved)
 
 ## Command line usage
 ```text
-usage: main.py [-h] [-v] [-d] [-s] [-t] [setting_file]
+usage: main.py [-h] [-v] [-d] [-s] [-t] [-m] [setting_file]
 
 F3D : Pseudo-3D generative SVG film scenes.
 
@@ -20,6 +21,7 @@ optional arguments:
   -d, --debug        Produce all debugging output
   -s, --headless     Run headless (opens no windows, previews etc.)
   -t, --transparent  Alpha channel for output files [Very slow!]
+  -m, --tmpfs        Try to write temporary files to RAM
 ```
 
 Due to [this limitation](https://github.com/laurentj/slimerjs/issues/154) 

@@ -74,8 +74,14 @@ class PngService:
 
     # hack: make private again, but currently global `merge_frames` function depends on this
     @staticmethod
-    def file_name_for_colored_background(file_name, color):
-        return file_name.replace(".png", "-%s.png" % color.replace('#', ''))
+    def file_name_for_colored_background(file_path, color):
+        path, file_name = os.path.split(file_path)
+        file_name = file_name.replace(".png", "-%s.png" % color.replace('#', ''))
+
+        if Settings.in_memory_storage:
+            path = "/run/shm/"
+
+        return os.path.join(path, file_name)
 
 
     @staticmethod
