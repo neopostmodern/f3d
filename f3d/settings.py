@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import multiprocessing
 from f3d.util.vectors import Vector2
 
 __author__ = 'neopostmodern'
@@ -21,6 +22,9 @@ class Image:
 
 
 class _Settings:
+    def __init__(self):
+        self.processor_count = multiprocessing.cpu_count()
+
     def set(self, settings):
         self.__dict__.update(settings)
 

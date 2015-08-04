@@ -103,7 +103,7 @@ class PngService:
     @staticmethod
     def __merge_into_transparent_frames(frame_indices):
         # todo: switch to pathos when 3.x compliant - https://github.com/uqfoundation/pathos/issues/1
-        with Pool(processes=4) as pool:
+        with Pool(processes=Settings.processor_count) as pool:
             for return_value, output_file in pool.imap_unordered(merge_frame, frame_indices):
                 if return_value != 0:
                     logging.debug("Frame merge to transparent exited with %d for '%s'" % (return_value, output_file))
