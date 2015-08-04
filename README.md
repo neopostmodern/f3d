@@ -1,21 +1,31 @@
 # F3D - Pseudo-3D generative SVG film scenes
 
-**Important Notice** SlimerJs is now a mandatory requirement and the executable is [for now] assumed to be located at `../slimerjs/slimerjs`.
+## Requirements
+*Currently there is no automated process to install the dependencies.*
+- **SlimerJs** is now a mandatory requirement and the executable is [for now] assumed to be located at `slimerjs/slimerjs`
+- `convert` i.e. ImageMagick (until [this](https://github.com/laurentj/slimerjs/issues/154) is solved)
 
 ## Command line usage
 ```text
-usage: main.py [-h] [-v] [-d] [setting_file]
+usage: main.py [-h] [-v] [-d] [-s] [-t] [setting_file]
 
 F3D : Pseudo-3D generative SVG film scenes.
 
 positional arguments:
-  setting_file   File to read setting from [Default: setting.f3d.json]
+  setting_file       File to read setting from [Default: setting.f3d.json]
 
 optional arguments:
-  -h, --help     show this help message and exit
-  -v, --verbose  Produce more output
-  -d, --debug    Produce all debugging output
+  -h, --help         show this help message and exit
+  -v, --verbose      Produce more output
+  -d, --debug        Produce all debugging output
+  -s, --headless     Run headless (opens no windows, previews etc.)
+  -t, --transparent  Alpha channel for output files [Very slow!]
 ```
+
+Due to [this limitation](https://github.com/laurentj/slimerjs/issues/154) 
+it currently relies on [this workaround](https://github.com/laurentj/slimerjs/issues/154#issuecomment-58495876)
+which is **very slow** and relies on `convert`, i.e. ImageMagick. 
+I recommend enabling it only for the final rendering.
 
 ## File Format (.f3d.json)
 The setting is stored in JSON. 

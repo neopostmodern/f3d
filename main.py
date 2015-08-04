@@ -30,10 +30,13 @@ parser.add_argument('-d', '--debug', help='Produce all debugging output',
                     action="store_const", dest="log_level", const=logging.DEBUG)
 parser.add_argument('-s', '--headless', help='Run headless (opens no windows, previews etc.)',
                     action="store_const", dest="headless", const=True, default=False)
+parser.add_argument('-t', '--transparent', help='Alpha channel for output files [Very slow!]',
+                    action="store_const", dest="transparent", const=True, default=False)
 
 arguments = parser.parse_args()
 
 Settings.add('headless', arguments.headless)
+Settings.add('transparent', arguments.transparent)
 
 # configure logging
 logging.basicConfig(level=arguments.log_level, stream=sys.stdout)

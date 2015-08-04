@@ -76,13 +76,17 @@ class PngService:
     @staticmethod
     def __slimer_image_rendering_code(file_name):
         code = ""
-        for color in COLORS:
-            code += """
+        if Settings.transparent:
+            for color in COLORS:
+                code += """
     page.evaluate(function() {
         document.body.style.background = '%s';
     });
     page.render('%s', { onlyViewport: true });
-            """ % (color, PngService.file_name_for_colored_background(file_name, color))
+                """ % (color, PngService.file_name_for_colored_background(file_name, color))
+        else:
+            code = "page.render('%s', { onlyViewport: true });" % file_name
+
         return code
 
     @staticmethod
@@ -145,6 +149,9 @@ deferred.promise.then(function () {
 
         self.__execute_slimer_commands(slimer_commands)
 
-        logging.debug("Starting merging to transparent...")
-        PngService.__merge_into_transparent_frames(frame_indices)
-        logging.debug("Post production done.")
+        if Settings.transparent:
+            logging.debug("Starting merging to transparent...")
+            PngService.__merge_into_transparent_frames(frame_indices)
+            logging.debug("Post production done.")
+        else:
+            logging.debug("No post production necessary.")
