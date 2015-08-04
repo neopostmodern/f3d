@@ -38,7 +38,12 @@ def merge_frame(frame_index):
             merged_file_name
         )
 
-    return os.system(command), merged_file_name
+    return_value = os.system(command)
+
+    for input_file_name in input_file_names:
+        os.remove(input_file_name)
+
+    return return_value, merged_file_name
 
 
 class PngService:
