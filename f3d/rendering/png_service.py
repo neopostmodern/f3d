@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 from multiprocessing.pool import Pool
+from concurrent.futures import ThreadPoolExecutor
 import os
 import subprocess
 import tempfile
 import logging
+import re
 from f3d.file_management import FileManagement
 from f3d.settings import Settings
 
@@ -52,22 +54,6 @@ class PngService:
         # self.executor = ThreadPoolExecutor(max_workers=1)
         pass
 
-    def __execute_slimer_commands(self, commands):
-        with tempfile.NamedTemporaryFile(suffix='.js') as slimer_file:
-            slimer_file.write(bytes(commands, 'UTF-8'))
-            slimer_file.flush()
-
-            command = [
-                SLIMER_EXECUTABLE,
-                os.path.abspath(slimer_file.name)
-            ]
-
-            if Settings.headless:
-                command.insert(0, 'xvfb-run')
-
-            # subprocess.Popen(command)
-            os.system(' '.join(command))
-
     # hack: make private again, but currently global `merge_frames` function depends on this
     @staticmethod
     def file_name_for_colored_background(file_path, color):
@@ -113,10 +99,11 @@ class PngService:
             tasks.append("""
     {
         url: 'http://localhost:8000/html/%d',
+        index: %d,
         versions: [
             %s
         ]
-    }""" % (frame_index, ',\n\t\t\t'.join(versions)))
+    }""" % (frame_index, frame_index, ',\n\t\t\t'.join(versions)))
 
         commands.append("const Tasks = [\n\t%s\n];" % ',\n\t'.join(tasks))
 
@@ -136,10 +123,10 @@ Tasks.forEach(function(task) {
                             document.body.style.background = color;
                         }, version.color);
                         page.render(version.filePath, { onlyViewport: true });
+                        console.log(task.index + "/" + version.color);
                     });
 
                     page.close();
-                    console.log("Done with " + task.url);
                     resolve();
                 } else {
                     console.log("Sorry, the page is not loaded for " + url);
@@ -154,11 +141,36 @@ Promise.all(queue).then(function() {
     phantom.exit();
 });""")
 
-        self.__execute_slimer_commands('\n'.join(commands))
+        with tempfile.NamedTemporaryFile(suffix='.js') as slimer_file:
+            slimer_file.write(bytes('\n'.join(commands), 'UTF-8'))
+            slimer_file.flush()
 
-        if Settings.transparent:
-            logging.debug("Starting merging to transparent...")
-            PngService.__merge_into_transparent_frames(frame_indices)
-            logging.debug("Post production done.")
-        else:
-            logging.debug("No post production necessary.")
+            command = [
+                SLIMER_EXECUTABLE,
+                os.path.abspath(slimer_file.name)
+            ]
+
+            if Settings.headless:
+                command.insert(0, 'xvfb-run')
+                command.insert(1, '-a')
+
+            if Settings.transparent:
+                # todo: maybe we can catch errors here
+                process = subprocess.Popen(command, stdout=subprocess.PIPE)
+
+                rendered_images = {}
+                for frame_index in frame_indices:
+                    rendered_images[frame_index] = 0
+
+                with ThreadPoolExecutor(max_workers=(Settings.processor_count - 1)) as pool:
+                    for line in process.stdout:
+                        text = line.decode("utf-8")
+                        frame_index = int(re.match(r'\d+', text).group())
+                        # we don't care about the color for now, we just need both to finish
+
+                        rendered_images[frame_index] += 1
+                        if rendered_images[frame_index] == 2:
+                            pool.submit(merge_frame, frame_index)
+            else:
+                devnull = open(os.devnull, 'w')
+                subprocess.call(command, stdout=devnull)
