@@ -68,10 +68,6 @@ class PngService:
             # subprocess.Popen(command)
             os.system(' '.join(command))
 
-    @staticmethod
-    def __slimer_initialization_code():
-        return "page.viewportSize = { width: 1920, height: 1080 };"
-
     # hack: make private again, but currently global `merge_frames` function depends on this
     @staticmethod
     def file_name_for_colored_background(file_path, color):
@@ -82,23 +78,6 @@ class PngService:
             path = "/run/shm/"
 
         return os.path.join(path, file_name)
-
-
-    @staticmethod
-    def __slimer_image_rendering_code(file_name):
-        code = ""
-        if Settings.transparent:
-            for color in COLORS:
-                code += """
-    page.evaluate(function() {
-        document.body.style.background = '%s';
-    });
-    page.render('%s', { onlyViewport: true });
-                """ % (color, PngService.file_name_for_colored_background(file_name, color))
-        else:
-            code = "page.render('%s', { onlyViewport: true });" % file_name
-
-        return code
 
     @staticmethod
     def __merge_into_transparent_frames(frame_indices):
@@ -111,54 +90,71 @@ class PngService:
         # for frame_index in frame_indices:
         #     merge_frame(frame_index)
 
-    def render_svg_to_png(self, frame_index):
-        slimer_commands = """
-var page = require('webpage').create();
-page
-  .open('%s')
-  .then(function () {
-    %s
-    %s
-    slimer.exit()
-  });
-        """ % (
-            'http://localhost:8000/html/%d' % frame_index,
-            self.__slimer_initialization_code(),
-            self.__slimer_image_rendering_code(FileManagement.png_file_path_for_frame(frame_index))
-        )
+    def render_svg_to_png(self, frame_indices):
+        VERSION_PATTERN = "{ color: '%s', filePath: '%s' }"
 
-        self.__execute_slimer_commands(slimer_commands)
+        commands = []
 
-    # todo: enable parallel rendering
-    def batch_render_svg_to_png(self, frame_indices):
-        slimer_command_head = """
-const { defer } = require('sdk/core/promise');
-var page = require('webpage').create();
-%s
-var deferred = defer();
-deferred.resolve();
-deferred.promise.then(function () {
-        """ % (self.__slimer_initialization_code())
-
-        commands = [slimer_command_head]
-
+        tasks = []
         for frame_index in frame_indices:
-            command = """
-    return page.open('%s');
-}).then(function () {
-    %s
-            """ % (
-                'http://localhost:8000/html/%d' % frame_index,
-                self.__slimer_image_rendering_code(FileManagement.png_file_path_for_frame(frame_index))
-            )
+            versions = []
+            file_path = FileManagement.png_file_path_for_frame(frame_index)
 
-            commands.append(command)
+            if Settings.transparent:
+                for color in COLORS:
+                    colored_file_path = self.file_name_for_colored_background(
+                        file_path,
+                        color
+                    )
+                    versions.append(VERSION_PATTERN % (color, colored_file_path))
+            else:
+                versions.append(VERSION_PATTERN % ('none', file_path))
 
-        commands.append("slimer.exit(); });")
+            tasks.append("""
+    {
+        url: 'http://localhost:8000/html/%d',
+        versions: [
+            %s
+        ]
+    }""" % (frame_index, ',\n\t\t\t'.join(versions)))
 
-        slimer_commands = ''.join(commands)
+        commands.append("const Tasks = [\n\t%s\n];" % ',\n\t'.join(tasks))
 
-        self.__execute_slimer_commands(slimer_commands)
+        # todo: how are errors passed back to us and handled?
+        commands.append("""
+
+var queue = [];
+Tasks.forEach(function(task) {
+    var p = new Promise(function(resolve, reject) {
+        var page = require('webpage').create();
+        page.viewportSize = { width: 1920, height: 1080 };
+        page.open(task.url)
+            .then(function(status) {
+                if (status == "success") {
+                    task.versions.forEach(function (version) {
+                        page.evaluate(function(color) {
+                            document.body.style.background = color;
+                        }, version.color);
+                        page.render(version.filePath, { onlyViewport: true });
+                    });
+
+                    page.close();
+                    console.log("Done with " + task.url);
+                    resolve();
+                } else {
+                    console.log("Sorry, the page is not loaded for " + url);
+                    reject(new Error("Some problem occurred with " + url));
+                }
+            });
+    });
+    queue.push(p);
+});
+
+Promise.all(queue).then(function() {
+    phantom.exit();
+});""")
+
+        self.__execute_slimer_commands('\n'.join(commands))
 
         if Settings.transparent:
             logging.debug("Starting merging to transparent...")
