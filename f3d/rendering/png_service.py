@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import logging
 import re
+import sys
 from f3d.file_management import FileManagement
 from f3d.settings import Settings
 
@@ -155,6 +156,31 @@ Promise.all(queue).then(function() {
                 command.insert(1, '-a')
 
             if Settings.transparent:
+                class ProcessCounter:
+                    def __init__(self):
+                        self.total_images_to_merge = len(frame_indices)
+                        self.total_images_to_render = self.total_images_to_merge * 2
+
+                        self.rendered_images_count = 0
+                        self.merged_images_count = 0
+
+                    def increase_rendered(self, *args, **kwargs):
+                        self.rendered_images_count += 1
+                        self.print_progress()
+
+                    def increase_merged(self, *args, **kwargs):
+                        self.merged_images_count += 1
+                        self.print_progress()
+
+                    def print_progress(self):
+                        sys.stdout.write("Rendered %3.0f%%, Merged %3.0f%%\r" % (
+                            100 * self.rendered_images_count / self.total_images_to_render,
+                            100 * self.merged_images_count / self.total_images_to_merge
+                        ))
+                        sys.stdout.flush()
+
+                counter = ProcessCounter()
+
                 # todo: maybe we can catch errors here
                 process = subprocess.Popen(command, stdout=subprocess.PIPE)
 
@@ -168,9 +194,13 @@ Promise.all(queue).then(function() {
                         frame_index = int(re.match(r'\d+', text).group())
                         # we don't care about the color for now, we just need both to finish
 
+                        counter.increase_rendered()
+
                         rendered_images[frame_index] += 1
                         if rendered_images[frame_index] == 2:
-                            pool.submit(merge_frame, frame_index)
+                            merge_process = pool.submit(merge_frame, frame_index)
+                            merge_process.add_done_callback(counter.increase_merged)
+
             else:
                 devnull = open(os.devnull, 'w')
                 subprocess.call(command, stdout=devnull)
