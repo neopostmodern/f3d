@@ -50,11 +50,6 @@ def merge_frame(frame_index):
 
 
 class PngService:
-    def __init__(self):
-        # http://stackoverflow.com/a/5209746/2525299
-        # self.executor = ThreadPoolExecutor(max_workers=1)
-        pass
-
     # hack: make private again, but currently global `merge_frames` function depends on this
     @staticmethod
     def file_name_for_colored_background(file_path, color):
@@ -62,22 +57,13 @@ class PngService:
         file_name = file_name.replace(".png", "-%s.png" % color.replace('#', ''))
 
         if Settings.in_memory_storage:
+            # todo: make platform independent, check if acceptable use of `/run/shm` at all
             path = "/run/shm/"
 
         return os.path.join(path, file_name)
 
     @staticmethod
-    def __merge_into_transparent_frames(frame_indices):
-        # todo: switch to pathos when 3.x compliant - https://github.com/uqfoundation/pathos/issues/1
-        with Pool(processes=Settings.processor_count) as pool:
-            for return_value, output_file in pool.imap_unordered(merge_frame, frame_indices):
-                if return_value != 0:
-                    logging.debug("Frame merge to transparent exited with %d for '%s'" % (return_value, output_file))
-
-        # for frame_index in frame_indices:
-        #     merge_frame(frame_index)
-
-    def render_svg_to_png(self, frame_indices):
+    def render_svg_to_png(frame_indices):
         VERSION_PATTERN = "{ color: '%s', filePath: '%s' }"
 
         commands = []
@@ -89,7 +75,7 @@ class PngService:
 
             if Settings.transparent:
                 for color in COLORS:
-                    colored_file_path = self.file_name_for_colored_background(
+                    colored_file_path = PngService.file_name_for_colored_background(
                         file_path,
                         color
                     )
