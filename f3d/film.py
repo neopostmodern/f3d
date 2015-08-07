@@ -47,6 +47,18 @@ CONTAINER_SVG = """<?xml version="1.0" standalone="no"?>
 </svg>
 """
 
+TIME_SVG = """
+<text   id="time-indicator"
+        y="100"
+        x="-150"
+        style="font-size:29.15789223px;font-family:'Courier New';fill:#000000;fill-opacity:1;stroke:none;"
+        xml:space="preserve">
+    <tspan>
+        %s
+    </tspan>
+</text>
+"""
+
 
 class FakeFilm:
     def __init__(self, setting_path):
@@ -100,6 +112,10 @@ class FakeFilm:
             #todo: handle alpha channels
 
             surface_container.append(surface)
+
+        if Settings.add_timestamp:
+            minutes, seconds = divmod(time, 60)
+            surface_container.append(etree.fromstring(TIME_SVG % ("00:%02.0f:%07.4f" % (minutes, seconds))))
 
         return container
 

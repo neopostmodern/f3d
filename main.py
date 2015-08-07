@@ -34,12 +34,15 @@ parser.add_argument('-t', '--transparent', help='Alpha channel for output files 
                     action="store_const", dest="transparent", const=True, default=False)
 parser.add_argument('-m', '--tmpfs', help='Try to write temporary files to RAM',
                     action="store_const", dest="tmpfs", const=True, default=False)
+parser.add_argument('--timestamp', help='Adds a timestamp to each frame',
+                    action="store_const", dest="timestamp", const=True, default=False)
 
 arguments = parser.parse_args()
 
 Settings.add('headless', arguments.headless)
 Settings.add('transparent', arguments.transparent)
 Settings.add('in_memory_storage', arguments.tmpfs)
+Settings.add('add_timestamp', arguments.timestamp)
 
 configure_logging(arguments.log_level)
 
