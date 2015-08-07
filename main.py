@@ -5,13 +5,13 @@ import argparse
 import logging
 import os
 import traceback
-import sys
 import time
 
 from f3d.file_management import FileManagement
 from f3d.rendering.png_service import PngService
 from f3d.rendering.svg_server import SvgServer
 from f3d.settings import Settings
+from f3d.util.logging_configuration import configure_logging
 from f3d import film
 
 __author__ = 'neopostmodern'
@@ -41,31 +41,7 @@ Settings.add('headless', arguments.headless)
 Settings.add('transparent', arguments.transparent)
 Settings.add('in_memory_storage', arguments.tmpfs)
 
-# configure logging
-logging.basicConfig(level=arguments.log_level, stream=sys.stdout)
-# hack: http://stackoverflow.com/questions/3105521/google-app-engine-python-change-logging-formatting/3105859#3105859
-logging.getLogger().handlers[0].setFormatter(logging.Formatter("%(levelname)-8s %(message)s"))  # "%(asctime)s >
-
-def add_coloring_to_emit_ansi(fn):
-    # add methods we need to the class
-    def new(*args):
-        levelno = args[1].levelno
-        if(levelno>=50):
-            color = '\x1b[31m' # red
-        elif(levelno>=40):
-            color = '\x1b[31m' # red
-        elif(levelno>=30):
-            color = '\x1b[33m' # yellow
-        elif(levelno>=20):
-            color = '\x1b[32m' # green
-        elif(levelno>=10):
-            color = '\x1b[35m' # pink
-        else:
-            color = '\x1b[0m' # normal
-        args[1].msg = color + str(args[1].msg) +  '\x1b[0m'  # normal
-        return fn(*args)
-    return new
-logging.StreamHandler.emit = add_coloring_to_emit_ansi(logging.StreamHandler.emit)
+configure_logging(arguments.log_level)
 
 logging.info("Hello. This is F3D!")
 logging.debug("Selected setting file: %s (as %s)" % (arguments.setting_file, os.path.join(os.getcwd(), arguments.setting_file)))
