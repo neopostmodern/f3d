@@ -16,7 +16,7 @@ from f3d import film
 
 __author__ = 'neopostmodern'
 
-__start_time = time.perf_counter()
+__performance = {'start': time.perf_counter()}
 
 
 DEFAULT_SETTING_PATH = 'setting.f3d.json'
@@ -64,24 +64,29 @@ frame_indices = range(
 frame_count = len(frame_indices)
 
 logging.info("Starting SVG creation...")
+__performance['start_svg'] = time.perf_counter()
 for frame_index in frame_indices:
     FileManagement.svg_output(frame_index, film.render(frame_index / Settings.frames_per_second))
     # FileManagement.render_svg_to_png(index)
     # png.render_svg_to_png(frame_index)
-logging.info("SVG creation complete.")
+__performance['end_svg'] = time.perf_counter()
+logging.info("SVG creation complete. [%.2fs]" % (__performance['end_svg'] - __performance['start_svg']))
 
 try:
     logging.info("Starting SVG to PNG rendering...")
+    __performance['start_rendering'] = time.perf_counter()
     SvgServer()
     png = PngService()
     png.render_svg_to_png(frame_indices)
-    logging.info("SVG to PNG rendering complete.")
+    __performance['end_rendering'] = time.perf_counter()
+    logging.info("SVG to PNG rendering complete. [%.2fs]" %
+                 (__performance['end_rendering'] - __performance['start_rendering']))
 except Exception as exception:  # todo: more specific error catching
     logging.error("Fatal error during rendering: ")
     logging.error(exception)
     logging.debug(traceback.format_exc())
     exit(1)
 
-__end_time = time.perf_counter()
+__performance['end'] = time.perf_counter()
 
-logging.info("We're done, it took just %.2f seconds. Good bye!" % (__end_time - __start_time))
+logging.info("We're done, it took just %.2f seconds. Good bye!" % (__performance['end'] - __performance['start']))
