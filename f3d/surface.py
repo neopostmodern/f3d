@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 from copy import deepcopy
+import logging
 
 from f3d.settings import Settings
 from f3d.tools_3d.object_3d import Object3D
@@ -41,7 +42,7 @@ class Surface(Object3D):
     def get_svg_transformed_to(self, mapping, svg_element):
         # todo: review!
         transformation = ", ".join(["%.6f" % value for value in mapping.flatten()])
-        transformations = " ".join(["%stransform: matrix3d(%s);" % (prefix, transformation) for prefix in ["-webkit-", ""]])
+        transformations = " ".join(["%stransform: matrix3d(%s);" % (prefix, transformation) for prefix in [""]]) # "-webkit-",
 
         svg_element.set("style", transformations)  # consider: `transform-origin: 280px 50px 0px;`
 
@@ -53,11 +54,13 @@ class Surface(Object3D):
         svg = self.svg_provider.get_for_time(time)
         projection = camera.project_surface(self, time)
 
-        if all([p is not None for p in projection]):
-            mapping = SvgUtility.generate_css3_3d_transformation_matrix(self.source_size, projection)
-            return self.get_svg_transformed_to(mapping, svg)
-        else:
-            # todo: proper error handling if projection failed
-            print("Couldn't project surface '%s'" % self.meta['name'])
+        if projection is not None:
+            origin_points = [origin for origin, target in projection]
+            target_points = [target for origin, target in projection]
+            mapping = SvgUtility.generate_css3_3d_transformation_matrix(origin_points, target_points)
 
-        return svg
+            return self.get_svg_transformed_to(mapping, svg)
+
+        # todo: proper error handling if projection failed
+        logging.debug("Couldn't project surface '%s' at %.2f sec" % (self.meta['name'], time))
+        return None

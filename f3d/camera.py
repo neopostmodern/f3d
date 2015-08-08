@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import math
+import numpy
 
 from f3d.util.vectors import Vector3, intersect
 from f3d.util.animated_vectors import StaticVector, AnimatedVector
@@ -56,13 +57,8 @@ class Camera(Object3D):
 
         adjusted_camera_position = camera_position - canvas_normal.array_representation * camera_distance
 
-        def intersection_point(x_factor, y_factor):
-            surface_corner = Vector3(
-                surface_size.x * x_factor,
-                surface_size.y * y_factor,
-                0
-            ).rotate(surface_rotation)\
-                + surface_position
+        def intersection_point_by_origin(origin_point):
+            surface_corner = Vector3(origin_point).rotate(surface_rotation) + surface_position
 
             ray_direction = surface_corner - adjusted_camera_position
 
@@ -78,10 +74,87 @@ class Camera(Object3D):
 
             return intersection
 
-        # lower left, lower right, upper left, upper right
+        def intersection_point_by_target(target_point):
+            camera_corner = Vector3(target_point).rotate(camera_rotation) + camera_position
+            ray_direction = camera_corner - adjusted_camera_position
+
+            intersection = intersect(
+                adjusted_camera_position.array_representation,
+                ray_direction.array_representation,
+                surface_position.array_representation,
+                Vector3(0, 0, 1).rotate(surface_rotation).array_representation
+            )
+
+            if intersection is None:
+                return None
+
+            # move to origin
+            intersection -= surface_position.array_representation
+            x_component = Vector3(1, 0, 0).rotate(surface_rotation)
+            y_component = Vector3(0, 1, 0).rotate(surface_rotation)
+            z_component = Vector3(0, 0, 1).rotate(surface_rotation)
+
+            mapped_intersection = numpy.linalg.solve(
+                [
+                    [x_component.x, y_component.x, z_component.x],
+                    [x_component.y, y_component.y, z_component.y],
+                    [x_component.z, y_component.z, z_component.z]
+                ],
+                intersection
+            )
+
+            # todo: check if more efficient version is equivalent (should be)
+
+            # mapped_intersection = numpy.linalg.solve(
+            #     [
+            #         [x_component.x, y_component.x],
+            #         [x_component.y, y_component.y]
+            #     ],
+            #     intersection[:2]
+            # )
+
+            return [mapped_intersection[0], mapped_intersection[1], 0]
+
+        # first try with lower left, lower right, upper left, upper right, middle
         factors = [(0, 0),
                    (1, 0),
                    (0, 1),
-                   (1, 1)]
+                   (1, 1),
+                   (0.5, 0.5)]
+        origin_positions = [[surface_size.x * x_factor, surface_size.y * y_factor, 0] for x_factor, y_factor in factors]
 
-        return [intersection_point(x_factor, y_factor) for x_factor, y_factor in factors]
+        possible_intersection_points = [(point, intersection_point_by_origin(point)) for point in origin_positions]
+
+        target_positions = [[Settings.image.size.x * x_factor, Settings.image.size.y * y_factor, 0]
+                            for x_factor, y_factor in factors]
+        possible_intersection_points.extend(
+            [(intersection_point_by_target(point), point) for point in target_positions]
+        )
+
+        intersection_points = []
+
+        for origin, target in possible_intersection_points:
+            if origin is not None and target is not None:
+                unaligned = True
+                for index_a, (_, point_a) in enumerate(intersection_points):
+                    for index_b, (_, point_b) in enumerate(intersection_points):
+                        if index_a != index_b:
+                            # check if aligned by empty triangle surface http://stackoverflow.com/a/3813755/2525299
+                            if abs(target[0] * (point_a[1] - point_b[1])
+                                    + point_a[0] * (point_b[1] - target[1])
+                                    + point_b[0] * (target[1] - point_a[1])) < 1:
+                                unaligned = False
+
+                # filter aligned points because they (potentially) don't carry information
+                # todo: find more efficient means to filter redundant points
+                if unaligned:
+                    intersection_points.append((origin, target))
+
+                if len(intersection_points) >= 4:
+                    break
+
+        if len(intersection_points) >= 4:
+            return intersection_points
+
+        return None
+

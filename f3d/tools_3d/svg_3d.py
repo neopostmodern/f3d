@@ -14,25 +14,20 @@ def from_svg(point):
             point[1] - 540]
 
 
-def generate_css3_3d_transformation_matrix(surface_size, target_area):
-    source_points = np.array([[0, 0],
-                              [surface_size.x, 0],
-                              [0, surface_size.y],
-                              [surface_size.x, surface_size.y]])
-
+def generate_css3_3d_transformation_matrix(origin_points, target_points):
     matrix = np.zeros((8, 8))
     reference = np.zeros(8)
 
     # print(target_area)
 
-    for index, target_point_original in enumerate(target_area):
+    for index, target_point_original in enumerate(target_points):
         # formula derived from: http://bl.ocks.org/mbostock/10571478
 
         row_index = index * 2
         target_point = into_svg(target_point_original)
         # source_point = source_point_original
 
-        source_point = source_points[index]
+        source_point = origin_points[index]
         # print(source_point, target_point)
         
         matrix[row_index][0] = source_point[0]

@@ -111,7 +111,8 @@ class FakeFilm:
 
             #todo: handle alpha channels
 
-            surface_container.append(surface)
+            if surface is not None:
+                surface_container.append(surface)
 
         if Settings.add_timestamp:
             minutes, seconds = divmod(time, 60)
