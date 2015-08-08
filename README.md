@@ -1,7 +1,8 @@
 # F3D - Pseudo-3D generative SVG film scenes
 
 ## Examples
-The first video produced with F3D will hopefully demo at [Una Festival](https://www.unafestival.ch/events/event/reflektion-reflexion/#)
+There is a [demo video](https://vimeo.com/neopostmodern/f3d-demo-train) now.
+The first real video produced with F3D will hopefully demo at [Una Festival](https://www.unafestival.ch/events/event/reflektion-reflexion/#)
 in Bern, Switzerland.
 
 ## Requirements
