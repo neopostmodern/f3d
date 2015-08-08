@@ -1,0 +1,6 @@
+{
+  "executables": {
+    "slimerjs": "./slimerjs/slimerjs",
+    "firefox": "./firefox/firefox"
+  }
+}

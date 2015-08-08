@@ -13,8 +13,6 @@ from f3d.settings import Settings
 
 __author__ = 'neopostmodern'
 
-SLIMER_EXECUTABLE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../slimerjs/slimerjs")
-
 # todo: enable transparent rendering
 # one (bad) approach: https://github.com/laurentj/slimerjs/issues/154#issuecomment-58495876
 COLORS = ["#0000FF", "#FFFF00"]
@@ -133,7 +131,7 @@ Promise.all(queue).then(function() {
             slimer_file.flush()
 
             command = [
-                SLIMER_EXECUTABLE,
+                Settings.configuration.slimerjs_executable,
                 os.path.abspath(slimer_file.name)
             ]
 

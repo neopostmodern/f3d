@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import json
 import multiprocessing
+import os
 from f3d.util.vectors import Vector2
 
 __author__ = 'neopostmodern'
@@ -30,9 +32,34 @@ class _Timing:
         self.duration = self.end - self.begin
 
 
+class _Configuration:
+    def __init__(self, specification, base_path):
+        for name, path in specification['executables'].items():
+            if path.startswith('.'):
+                specification['executables'][name] = os.path.realpath(
+                    os.path.join(base_path, path)
+                )
+
+        self.slimerjs_executable = specification['executables']['slimerjs']
+        self.firefox_executable = specification['executables'].get('firefox', 'firefox')
+
+
 class _Settings:
     def __init__(self):
         self.processor_count = multiprocessing.cpu_count()
+        self.program_path = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
+
+        config_path = os.path.join(self.program_path, "config.json")
+
+        try:
+            with open(config_path, mode='r') as config_json:
+                try:
+                    config = json.load(config_json)
+                    self.configuration = _Configuration(config, self.program_path)
+                except ValueError:
+                    raise Exception("[Settings] Parsing of config '%s' failed." % config_path)
+        except FileNotFoundError as fileError:
+            raise Exception("[Settings] Configuration file '%s' not found." % config_path) from fileError
 
     def set(self, settings):
         # todo: make all properties explicit
