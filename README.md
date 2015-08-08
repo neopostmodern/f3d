@@ -9,7 +9,7 @@ in Bern, Switzerland.
 - **Linux/Ubuntu** - To be honest, I've only tested it on Ubuntu 15.04. It currently hard codes values such as `/run/shm`, so it's pretty platform dependent.
 - **SlimerJs** is now a mandatory requirement and the executable is [for now] assumed to be located at `slimerjs/slimerjs`
 - **Firefox** (between 18 and 39) for SlimerJS. Maybe XULRunner would work too.
-- `convert` i.e. ImageMagick (until [this](https://github.com/laurentj/slimerjs/issues/154) is solved)
+- `convert` i.e. **ImageMagick** (until [this](https://github.com/laurentj/slimerjs/issues/154) is solved)
 
 ## Command line usage
 ```text
@@ -35,7 +35,16 @@ which is **very slow** and relies on `convert`, i.e. ImageMagick.
 I recommend enabling it only for the final rendering.
 
 ## Configuration
-In the configuration file you must specify paths (not names!) of the required executables
+In the configuration file you must specify paths (not names!) of the required executables:
+```json
+{
+  "executables": {
+    "slimerjs": "./slimerjs/slimerjs",
+    "firefox": "/usr/bin/firefox"
+  }
+}
+```
+Paths with a leading `.` or `..` will be resolved relative to the F3D directory (not CWD).
 
 ## File Format (.f3d.json)
 The setting is stored in JSON. 
