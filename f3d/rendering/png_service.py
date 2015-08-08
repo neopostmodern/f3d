@@ -178,8 +178,13 @@ Promise.all(queue).then(function() {
                 with ThreadPoolExecutor(max_workers=(Settings.processor_count - 1)) as pool:
                     for line in process.stdout:
                         text = line.decode("utf-8")
-                        frame_index = int(re.match(r'\d+', text).group())
+
+                        # catches random output from SlimerJS
+                        if "WARN" in text:
+                            continue
+
                         # we don't care about the color for now, we just need both to finish
+                        frame_index = int(text.split('/')[0])
 
                         counter.increase_rendered()
 
