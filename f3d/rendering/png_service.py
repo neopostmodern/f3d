@@ -130,14 +130,17 @@ Promise.all(queue).then(function() {
             slimer_file.write(bytes('\n'.join(commands), 'UTF-8'))
             slimer_file.flush()
 
-            command = [
-                Settings.configuration.slimerjs_executable,
-                os.path.abspath(slimer_file.name)
-            ]
+            environment = os.environ.copy()
+            environment['SLIMERJSLAUNCHER'] = Settings.configuration.firefox_executable
+
+            command = []
 
             if Settings.headless:
-                command.insert(0, 'xvfb-run')
-                command.insert(1, '-a')
+                command.append('xvfb-run')
+                command.append('-a')
+
+            command.append(Settings.configuration.slimerjs_executable)
+            command.append(os.path.abspath(slimer_file.name))
 
             if Settings.transparent:
                 class ProcessCounter:
@@ -166,7 +169,7 @@ Promise.all(queue).then(function() {
                 counter = ProcessCounter()
 
                 # todo: maybe we can catch errors here
-                process = subprocess.Popen(command, stdout=subprocess.PIPE)
+                process = subprocess.Popen(command, stdout=subprocess.PIPE, env=environment)
 
                 rendered_images = {}
                 for frame_index in frame_indices:
@@ -186,5 +189,8 @@ Promise.all(queue).then(function() {
                             merge_process.add_done_callback(counter.increase_merged)
 
             else:
-                devnull = open(os.devnull, 'w')
-                subprocess.call(command, stdout=devnull)
+                try:
+                    subprocess.check_call(command, stdout=subprocess.DEVNULL, env=environment)
+                except subprocess.CalledProcessError as error:
+                    print(error.output)
+                    raise ChildProcessError("[PNG Service] SlimerJS Rendering failed with exit code '%d'." % error.returncode) from error

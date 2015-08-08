@@ -1,9 +1,14 @@
 # F3D - Pseudo-3D generative SVG film scenes
 
+## Examples
+The first video produced with F3D will hopefully demo at [Una Festival](https://www.unafestival.ch/events/event/reflektion-reflexion/#)
+in Bern, Switzerland.
+
 ## Requirements
 *Currently there is no automated process to install the dependencies.*
 - **Linux/Ubuntu** - To be honest, I've only tested it on Ubuntu 15.04. It currently hard codes values such as `/run/shm`, so it's pretty platform dependent.
 - **SlimerJs** is now a mandatory requirement and the executable is [for now] assumed to be located at `slimerjs/slimerjs`
+- **Firefox** (between 18 and 39) for SlimerJS. Maybe XULRunner would work too.
 - `convert` i.e. ImageMagick (until [this](https://github.com/laurentj/slimerjs/issues/154) is solved)
 
 ## Command line usage
@@ -28,6 +33,9 @@ Due to [this limitation](https://github.com/laurentj/slimerjs/issues/154)
 it currently relies on [this workaround](https://github.com/laurentj/slimerjs/issues/154#issuecomment-58495876)
 which is **very slow** and relies on `convert`, i.e. ImageMagick. 
 I recommend enabling it only for the final rendering.
+
+## Configuration
+In the configuration file you must specify paths (not names!) of the required executables
 
 ## File Format (.f3d.json)
 The setting is stored in JSON. 
@@ -200,4 +208,10 @@ output/
        ...
        (output PNG, use for video)
 ```
+
+## List of bugs making life harder
+- Firefox: [SVG Elements optimized away after complicated 3D transitions if too close to edge](https://bugzilla.mozilla.org/show_bug.cgi?id=1192457)
+- SlimerJS: [Silently fails when using Firefox Nightly](https://github.com/laurentj/slimerjs/issues/378)
+- SlimerJS: [Render with Transparent background](https://github.com/laurentj/slimerjs/issues/154)
+- WebKit: [No support for matrix3d transformation in SVG](http://stackoverflow.com/questions/27177386/svg-matrix3d-renders-differently-in-different-browser)
 

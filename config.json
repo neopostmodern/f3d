@@ -1,6 +1,6 @@
 {
   "executables": {
     "slimerjs": "./slimerjs/slimerjs",
-    "firefox": "./firefox/firefox"
+    "firefox": "/usr/bin/firefox"
   }
 }
