@@ -82,6 +82,11 @@ The `project_identifier` is used for the output sub-directory. (Can't currently 
         "width": 1920,
         "height": 1080
       }
+```
+`size` refers to the dimensions of the virtual canvas the scene will be mapped onto, 
+thus also the size of the generated SVG.
+The (bitmap/video) output will be of the same size.
+```
     },
     "frames_per_second": 30
   },

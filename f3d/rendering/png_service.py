@@ -94,12 +94,11 @@ class PngService:
 
         # todo: how are errors passed back to us and handled?
         commands.append("""
-
 var queue = [];
 Tasks.forEach(function(task) {
     var p = new Promise(function(resolve, reject) {
         var page = require('webpage').create();
-        page.viewportSize = { width: 1920, height: 1080 };
+        page.viewportSize = { width: %d, height: %d };
         page.open(task.url)
             .then(function(status) {
                 if (status == "success") {
@@ -124,7 +123,7 @@ Tasks.forEach(function(task) {
 
 Promise.all(queue).then(function() {
     phantom.exit();
-});""")
+});""" % (Settings.image.size.x, Settings.image.size.y))
 
         with tempfile.NamedTemporaryFile(suffix='.js') as slimer_file:
             slimer_file.write(bytes('\n'.join(commands), 'UTF-8'))

@@ -12,14 +12,8 @@ class _Image:
     def __init__(self, specification):
         if 'size' in specification:
             self.size = Vector2.from_dict(specification['size'], ['width', 'height'])
-
-        if 'input_size' not in specification:
-            self.input_size = self.size  # todo: probably doesn't make sense!
-            self.output_size = self.size
-
-        # todo: other combinations of sizes / values
-
-        # todo: fail if none above present
+        else:
+            raise ValueError("Settings: Missing value for 'image/size'.")
 
 
 class _Timing:
