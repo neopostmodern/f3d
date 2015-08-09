@@ -66,54 +66,39 @@ class Camera(Object3D):
                 adjusted_camera_position.array_representation,
                 ray_direction.array_representation,
                 canvas_origin.array_representation,
-                canvas_normal.array_representation
+                canvas_normal.array_representation,
+                maximum=1  # intersection must be _before_ surface
             )
 
             if intersection is None:
                 return None
 
-            return intersection
+            return Vector3.resolve_relative_position(
+                canvas_origin,
+                camera_rotation,
+                Vector3(intersection)
+            )
 
         def intersection_point_by_target(target_point):
-            camera_corner = Vector3(target_point).rotate(camera_rotation) + camera_position
-            ray_direction = camera_corner - adjusted_camera_position
+            canvas_corner = Vector3(target_point).rotate(camera_rotation) + canvas_origin
+            ray_direction = canvas_corner - adjusted_camera_position
 
             intersection = intersect(
                 adjusted_camera_position.array_representation,
                 ray_direction.array_representation,
                 surface_position.array_representation,
-                Vector3(0, 0, 1).rotate(surface_rotation).array_representation
+                Vector3(0, 0, 1).rotate(surface_rotation).array_representation,
+                minimum=1  # intersection must be _behind_ canvas
             )
 
             if intersection is None:
                 return None
 
-            # move to origin
-            intersection -= surface_position.array_representation
-            x_component = Vector3(1, 0, 0).rotate(surface_rotation)
-            y_component = Vector3(0, 1, 0).rotate(surface_rotation)
-            z_component = Vector3(0, 0, 1).rotate(surface_rotation)
-
-            mapped_intersection = numpy.linalg.solve(
-                [
-                    [x_component.x, y_component.x, z_component.x],
-                    [x_component.y, y_component.y, z_component.y],
-                    [x_component.z, y_component.z, z_component.z]
-                ],
-                intersection
+            return Vector3.resolve_relative_position(
+                surface_position,
+                surface_rotation,
+                Vector3(intersection)
             )
-
-            # todo: check if more efficient version is equivalent (should be)
-
-            # mapped_intersection = numpy.linalg.solve(
-            #     [
-            #         [x_component.x, y_component.x],
-            #         [x_component.y, y_component.y]
-            #     ],
-            #     intersection[:2]
-            # )
-
-            return [mapped_intersection[0], mapped_intersection[1], 0]
 
         # first try with lower left, lower right, upper left, upper right, middle
         factors = [(0, 0),

@@ -25,6 +25,9 @@ class BaseAnimatedVector(object):
     def get_for_time(self, time):
         """
         Returns the vector at a given time.
+        :param time: Time in seconds
+        :type time float
+        :return: Vector3
         """
         return
 

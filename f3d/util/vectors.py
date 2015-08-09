@@ -46,6 +46,9 @@ class Vector3:
         self.z = value[2]
         return self.array_representation
 
+    def __repr__(self):
+        return "Vector3{x: %.4f, y: %.4f, z: %.4f}" % tuple(self.array_representation)
+
     def __add__(self, other):
         modified_vector = Vector3(0, 0, 0)
         if isinstance(other, Vector3):
@@ -110,6 +113,51 @@ class Vector3:
         self.array_representation = [math.radians(value) for value in self.array_representation]
         return self
 
+    @staticmethod
+    def resolve_relative_position(origin, rotation, point):
+        """
+        Calculates the relative X and Y position on a given plane for a point
+        :type origin Vector3
+        :param origin: Point supporting the plane
+        :type rotation Vector3
+        :param rotation: Rotation of the normal, relative to the Z-Axis [0, 0, 1]
+        :type point Vector3
+        :param point: The point to map onto the plane
+        :return: The X and Y position as an array[2] or None if the point was not on the plane
+        """
+
+        # move to origin
+        normalized_point = point - origin
+        x_component = Vector3(1, 0, 0).rotate(rotation)
+        y_component = Vector3(0, 1, 0).rotate(rotation)
+        z_component = Vector3(0, 0, 1).rotate(rotation)
+
+        mapped_intersection = numpy.linalg.solve(
+            [
+                [x_component.x, y_component.x, z_component.x],
+                [x_component.y, y_component.y, z_component.y],
+                [x_component.z, y_component.z, z_component.z]
+            ],
+            normalized_point.array_representation
+        )
+
+        # if the Z component is bigger than a reasonable numerical error (a 1000th of the point's norm)
+        # then the point wasn't on the plane
+        if mapped_intersection[2] > (numpy.linalg.norm(normalized_point.array_representation) / 1000):
+            return None
+
+        return [mapped_intersection[0], mapped_intersection[1], 0]
+
+        # todo: check if more efficient version is equivalent (should be)
+
+        # mapped_intersection = numpy.linalg.solve(
+        #     [
+        #         [x_component.x, y_component.x],
+        #         [x_component.y, y_component.y]
+        #     ],
+        #     intersection[:2]
+        # )
+
 # todo: implement via subclassing of ndarray http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 class Vector2():
     def __init__(self, x, y):
@@ -137,13 +185,26 @@ class Vector2():
         return cls(dict_like[keys[0]], dict_like[keys[1]])
 
 
-def intersect(ray_origin, ray_direction, plane_origin, plane_normal_vector, allow_negative=False):
+def intersect(ray_origin, ray_direction, plane_origin, plane_normal_vector, minimum=0, maximum=None):
+    """
+    Intersects a line and a plane. Restrictions on the range of the intersection can be applied.
+    :param ray_origin:
+    :param ray_direction:
+    :param plane_origin:
+    :param plane_normal_vector:
+    :param minimum: The minimum multiplier for the ray_direction, defaults to 0. Use None to disable.
+    :param maximum: The maximum multiplier for the ray_direction, defaults to None. Use None to disable.
+    :return: The intersection as vector[3] or None if no intersection exists, given the minimum/maximum restrictions.
+    """
 
     # https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection#Algebraic_form
     distance_factor = ((plane_origin - ray_origin).dot(plane_normal_vector)) \
                       / ray_direction.dot(plane_normal_vector)
 
-    if distance_factor <= 0 or allow_negative:
+    if minimum is not None and distance_factor < minimum:
+        return None
+
+    if maximum is not None and distance_factor > maximum:
         return None
 
     return ray_origin + ray_direction * distance_factor
