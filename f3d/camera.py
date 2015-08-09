@@ -12,15 +12,14 @@ from f3d.settings import Settings
 __author__ = 'neopostmodern'
 
 
+MAPPING_GRID_SIZE = 5  # consider: something more dynamic maybe?
+
+
 class Camera(Object3D):
     def __init__(self, specification):
         super().__init__(specification)
 
-        # todo: replace with pythonic one-liner
-        if 'focal_length' in specification:
-            self.focal_length = int(specification['focal_length'])
-        else:
-            self.focal_length = 50
+        self.focal_length = int(specification.get('focal_length', 50))
 
         # 35 _roughly_ simulates a 35mm format (which is 3:2), the usual reference for focal lengths
         # assuming that most projects will be 16:9 though, it should be a good estimate
@@ -100,12 +99,11 @@ class Camera(Object3D):
                 Vector3(intersection)
             )
 
-        # first try with lower left, lower right, upper left, upper right, middle
-        factors = [(0, 0),
-                   (1, 0),
-                   (0, 1),
-                   (1, 1),
-                   (0.5, 0.5)]
+        factors = []
+        for x in numpy.linspace(0, 1, num=MAPPING_GRID_SIZE, endpoint=True):
+            for y in numpy.linspace(0, 1, num=MAPPING_GRID_SIZE, endpoint=True):
+                factors.append((x, y))
+
         origin_positions = [[surface_size.x * x_factor, surface_size.y * y_factor, 0] for x_factor, y_factor in factors]
 
         possible_intersection_points = [(point, intersection_point_by_origin(point)) for point in origin_positions]
