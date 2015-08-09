@@ -1,15 +1,19 @@
 import numpy as np
+import warnings
+
 from f3d.settings import Settings
 
 __author__ = 'neo post modern'
 
 
 def into_svg(point):
+    warnings.warn("[SVG 3D] Method 'into_svg' has been deprecated", DeprecationWarning)
     return [point[0] + Settings.image.size.x / 2,
             point[1] + Settings.image.size.y / 2]
 
 
 def from_svg(point):
+    warnings.warn("[SVG 3D] Method 'from_svg' has been deprecated", DeprecationWarning)
     return [point[0] - Settings.image.size.x / 2,
             point[1] - Settings.image.size.y / 2]
 
