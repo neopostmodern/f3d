@@ -75,14 +75,15 @@ class AnimatedVector(BaseAnimatedVector):
                 raise ValueError("Missing value: No default or value '%s' found for animation." % identifier)
             default = self.constructor(first_frame[identifier])  # possibly redundant but important
 
+        unique_values = 0
         if float(first_frame['time']) != 0.0:
             animation.insert(0, {
                 'time': 0.0
             })
+            unique_values += 1
 
         timestamps = []
         values = []
-        unique_values = 0
         for frame in animation:
             timestamps.append(float(frame['time']))
 
