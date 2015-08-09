@@ -59,7 +59,7 @@ except Exception as exception:  # todo: more specific error catching
 
 frame_indices = range(
     int(Settings.timing.begin * Settings.frames_per_second),
-    int(Settings.timing.end * Settings.frames_per_second)
+    int(Settings.timing.end * Settings.frames_per_second) + 1
 )
 frame_count = len(frame_indices)
 
