@@ -28,8 +28,6 @@ parser.add_argument('-v', '--verbose', help='Produce more output',
                     action="store_const", dest="log_level", const=logging.INFO)
 parser.add_argument('-d', '--debug', help='Produce all debugging output',
                     action="store_const", dest="log_level", const=logging.DEBUG)
-parser.add_argument('-s', '--headless', help='Run headless (opens no windows, previews etc.)',
-                    action="store_const", dest="headless", const=True, default=False)
 parser.add_argument('-t', '--transparent', help='Alpha channel for output files [Very slow!]',
                     action="store_const", dest="transparent", const=True, default=False)
 parser.add_argument('-m', '--tmpfs', help='Try to write temporary files to RAM',
@@ -39,7 +37,6 @@ parser.add_argument('--timestamp', help='Adds a timestamp to each frame',
 
 arguments = parser.parse_args()
 
-Settings.add('headless', arguments.headless)
 Settings.add('transparent', arguments.transparent)
 Settings.add('in_memory_storage', arguments.tmpfs)
 Settings.add('add_timestamp', arguments.timestamp)

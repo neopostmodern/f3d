@@ -8,6 +8,7 @@ in Bern, Switzerland.
 ## Requirements
 *Currently there is no automated process to install the dependencies.*
 - **Linux/Ubuntu** - To be honest, I've only tested it on Ubuntu 15.04. It currently hard codes values such as `/run/shm`, so it's pretty platform dependent.
+- **XVFB** - It runs headless *SlimerJS* by default now (not deactivatable).
 - **SlimerJs** is now a mandatory requirement and the executable is [for now] assumed to be located at `slimerjs/slimerjs`
 - **Firefox** (between 18 and 39) for SlimerJS. Maybe XULRunner would work too.
 - `convert` i.e. **ImageMagick** (until [this](https://github.com/laurentj/slimerjs/issues/154) is solved)
@@ -25,7 +26,6 @@ optional arguments:
   -h, --help         show this help message and exit
   -v, --verbose      Produce more output
   -d, --debug        Produce all debugging output
-  -s, --headless     Run headless (opens no windows, previews etc.)
   -t, --transparent  Alpha channel for output files [Very slow!]
   -m, --tmpfs        Try to write temporary files to RAM
 ```

@@ -132,14 +132,9 @@ Promise.all(queue).then(function() {
             environment = os.environ.copy()
             environment['SLIMERJSLAUNCHER'] = Settings.configuration.firefox_executable
 
-            command = []
-
-            if Settings.headless:
-                command.append('xvfb-run')
-                command.append('-a')
-
-            command.append(Settings.configuration.slimerjs_executable)
-            command.append(os.path.abspath(slimer_file.name))
+            command = ['xvfb-run', '-a',
+                       Settings.configuration.slimerjs_executable,
+                       os.path.abspath(slimer_file.name)]
 
             if Settings.transparent:
                 class ProcessCounter:
