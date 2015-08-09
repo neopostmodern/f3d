@@ -11,6 +11,14 @@ from f3d.util.vectors import Vector3
 __author__ = 'neopostmodern'
 
 
+class ConstantFunction:
+    def __init__(self, value):
+        self.value = value
+
+    def __call__(self, *args, **kwargs):
+        return self.value
+
+
 class BaseAnimatedVector(object):
     __metaclass__ = abc.ABCMeta
 
@@ -67,33 +75,38 @@ class AnimatedVector(BaseAnimatedVector):
                 raise ValueError("Missing value: No default or value '%s' found for animation." % identifier)
             default = self.constructor(first_frame[identifier])  # possibly redundant but important
 
-        if float(first_frame['time']) is not 0.0:
+        if float(first_frame['time']) != 0.0:
             animation.insert(0, {
                 'time': 0.0
             })
 
         timestamps = []
         values = []
+        unique_values = 0
         for frame in animation:
             timestamps.append(float(frame['time']))
 
             if identifier in frame:
                 value = default = self.constructor(frame[identifier])
+                unique_values += 1
             else:
                 # consider: only using 'default' for first/last frame?
                 value = default
 
             values.append(value)
 
-        # todo: this is only linear interpolation. offer options for splines?
-        self.animation_functions = [RangedFunction(
-            interpolate.interp1d(
-                timestamps,
-                [value.array_representation[index] for value in values],
-                assume_sorted=True
-            ),
-            [timestamps[0], timestamps[-1]]
-        ) for index in range(3)]
+        if unique_values < 2:
+            self.animation_functions = [ConstantFunction(value) for value in values[0].array_representation]
+        else:
+            # todo: this is only linear interpolation. offer options for splines?
+            self.animation_functions = [RangedFunction(
+                interpolate.interp1d(
+                    timestamps,
+                    [value.array_representation[index] for value in values],
+                    assume_sorted=True
+                ),
+                [timestamps[0], timestamps[-1]]
+            ) for index in range(3)]
 
     def get_for_time(self, time):
         return self.constructor([animation_function(time) for animation_function in self.animation_functions])
