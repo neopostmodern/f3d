@@ -43,30 +43,31 @@ class Camera(Object3D):
         surface_position = surface.position(time)
         surface_size = surface.target_size(time)
 
-        # the camera position will actually be the _canvas_ position.
-        # the camera is moved back as necessary by the 'focal length', further called `camera_distance`
-        camera_distance = Settings.image.size.x / math.tan(self.angle_of_view / 2)
-
         canvas_normal = Vector3(0, 0, 1).rotate(camera_rotation)
+
+        # the canvas is moved back as necessary by the 'focal length' by the `canvas_distance`
+        canvas_distance = Settings.image.size.x / math.tan(self.angle_of_view / 2)
+        # the canvas origin will be located in the 'upper right' corner,
+        # resulting in lower left corner of the flipped canvas, acting as (0, 0)
         canvas_origin = camera_position + Vector3(
-            -0.5 * Settings.image.size.x,
-            -0.5 * Settings.image.size.y,
+            0.5 * Settings.image.size.x,
+            0.5 * Settings.image.size.y,
             0
         ).rotate(camera_rotation)
 
-        adjusted_camera_position = camera_position - canvas_normal.array_representation * camera_distance
+        canvas_origin -= canvas_normal.array_representation * canvas_distance
 
         def intersection_point_by_origin(origin_point):
             surface_corner = Vector3(origin_point).rotate(surface_rotation) + surface_position
 
-            ray_direction = surface_corner - adjusted_camera_position
+            ray_direction = camera_position - surface_corner
 
             intersection = intersect(
-                adjusted_camera_position.array_representation,
+                camera_position.array_representation,
                 ray_direction.array_representation,
                 canvas_origin.array_representation,
                 canvas_normal.array_representation,
-                maximum=1  # intersection must be _before_ surface
+                minimum=0  # intersection must be _behind_ camera, i.e. on the canvas
             )
 
             if intersection is None:
@@ -75,19 +76,20 @@ class Camera(Object3D):
             return Vector3.resolve_relative_position(
                 canvas_origin,
                 camera_rotation,
-                Vector3(intersection)
+                Vector3(intersection),
+                inverted=True
             )
 
         def intersection_point_by_target(target_point):
             canvas_corner = Vector3(target_point).rotate(camera_rotation) + canvas_origin
-            ray_direction = canvas_corner - adjusted_camera_position
+            ray_direction = camera_position - canvas_corner
 
             intersection = intersect(
-                adjusted_camera_position.array_representation,
+                camera_position.array_representation,
                 ray_direction.array_representation,
                 surface_position.array_representation,
                 Vector3(0, 0, 1).rotate(surface_rotation).array_representation,
-                minimum=1  # intersection must be _behind_ canvas
+                minimum=0  # intersection must be _in front of_  the camera
             )
 
             if intersection is None:
@@ -110,9 +112,19 @@ class Camera(Object3D):
 
         target_positions = [[Settings.image.size.x * x_factor, Settings.image.size.y * y_factor, 0]
                             for x_factor, y_factor in factors]
-        possible_intersection_points.extend(
-            [(intersection_point_by_target(point), point) for point in target_positions]
-        )
+        # the inverted target positions silently flip the result on the canvas
+        inverted_target_positions = [
+            [Settings.image.size.x * (1 - x_factor),
+             Settings.image.size.y * (1 - y_factor),
+             0]
+            for x_factor, y_factor
+            in factors
+        ]
+        possible_intersection_points.extend([
+            (intersection_point_by_target(point), point)
+            for point, inverted_point
+            in zip(target_positions, inverted_target_positions)
+        ])
 
         intersection_points = []
 

@@ -114,7 +114,7 @@ class Vector3:
         return self
 
     @staticmethod
-    def resolve_relative_position(origin, rotation, point):
+    def resolve_relative_position(origin, rotation, point, inverted=False):
         """
         Calculates the relative X and Y position on a given plane for a point
         :type origin Vector3
@@ -128,9 +128,10 @@ class Vector3:
 
         # move to origin
         normalized_point = point - origin
-        x_component = Vector3(1, 0, 0).rotate(rotation)
-        y_component = Vector3(0, 1, 0).rotate(rotation)
-        z_component = Vector3(0, 0, 1).rotate(rotation)
+        one = 1 if not inverted else -1
+        x_component = Vector3(one, 0, 0).rotate(rotation)
+        y_component = Vector3(0, one, 0).rotate(rotation)
+        z_component = Vector3(0, 0, one).rotate(rotation)
 
         mapped_intersection = numpy.linalg.solve(
             [
