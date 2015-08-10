@@ -5,7 +5,6 @@ import math
 import numpy
 
 from f3d.util.vectors import Vector3, intersect
-from f3d.util.animated_vectors import StaticVector, AnimatedVector
 from f3d.tools_3d.object_3d import Object3D
 from f3d.settings import Settings
 
@@ -81,7 +80,8 @@ class Camera(Object3D):
             )
 
         def intersection_point_by_target(target_point):
-            canvas_corner = Vector3(target_point).rotate(camera_rotation) + canvas_origin
+            inverted_target_point = [-1 * component for component in target_point]
+            canvas_corner = Vector3(inverted_target_point).rotate(camera_rotation) + canvas_origin
             ray_direction = camera_position - canvas_corner
 
             intersection = intersect(
@@ -108,45 +108,49 @@ class Camera(Object3D):
 
         origin_positions = [[surface_size.x * x_factor, surface_size.y * y_factor, 0] for x_factor, y_factor in factors]
 
-        possible_intersection_points = [(point, intersection_point_by_origin(point)) for point in origin_positions]
+        possible_intersection_points = [
+            (point, intersection_point_by_origin(point))
+            for point in origin_positions
+        ]
 
         target_positions = [[Settings.image.size.x * x_factor, Settings.image.size.y * y_factor, 0]
                             for x_factor, y_factor in factors]
-        # the inverted target positions silently flip the result on the canvas
-        inverted_target_positions = [
-            [Settings.image.size.x * (1 - x_factor),
-             Settings.image.size.y * (1 - y_factor),
-             0]
-            for x_factor, y_factor
-            in factors
-        ]
         possible_intersection_points.extend([
             (intersection_point_by_target(point), point)
-            for point, inverted_point
-            in zip(target_positions, inverted_target_positions)
+            for point in target_positions
         ])
+
+        # drop all failed projections first
+        possible_intersection_points = [
+            points for points in possible_intersection_points
+            if points[0] is not None and points[1] is not None
+        ]
+
+        # sort by closeness to origin to reduce numerical errors
+        possible_intersection_points.sort(
+            key=lambda points: numpy.linalg.norm(points[0]) + numpy.linalg.norm(points[1])
+        )
 
         intersection_points = []
 
         for origin, target in possible_intersection_points:
-            if origin is not None and target is not None:
-                unaligned = True
-                for index_a, (_, point_a) in enumerate(intersection_points):
-                    for index_b, (_, point_b) in enumerate(intersection_points):
-                        if index_a != index_b:
-                            # check if aligned by empty triangle surface http://stackoverflow.com/a/3813755/2525299
-                            if abs(target[0] * (point_a[1] - point_b[1])
-                                    + point_a[0] * (point_b[1] - target[1])
-                                    + point_b[0] * (target[1] - point_a[1])) < 1:
-                                unaligned = False
 
-                # filter aligned points because they (potentially) don't carry information
-                # todo: find more efficient means to filter redundant points
-                if unaligned:
-                    intersection_points.append((origin, target))
+            # filter aligned points because they (potentially) don't carry information
+            # todo: find more efficient means to filter redundant points
+            unaligned = True
+            for index_a, (_, point_a) in enumerate(intersection_points):
+                for index_b, (_, point_b) in enumerate(intersection_points):
+                    if index_a != index_b:
+                        # check if aligned, via empty triangle surface http://stackoverflow.com/a/3813755/2525299
+                        if abs(target[0] * (point_a[1] - point_b[1])
+                                + point_a[0] * (point_b[1] - target[1])
+                                + point_b[0] * (target[1] - point_a[1])) < 1e-5:
+                            unaligned = False
+            if unaligned:
+                intersection_points.append((origin, target))
 
-                if len(intersection_points) >= 4:
-                    break
+            if len(intersection_points) >= 4:
+                break
 
         if len(intersection_points) >= 4:
             return intersection_points
