@@ -30,10 +30,10 @@ def merge_frame(frame_index):
 
     merged_file_name = FileManagement.png_file_path_for_frame(frame_index)
 
-    command = "convert %s %s -alpha off " \
+    command = "convert '%s' '%s' -alpha off " \
         "\( -clone 0,1 -compose difference -composite -separate -evaluate-sequence max -auto-level -negate \) " \
         "\( -clone 0,2 -fx \"v==0?0:u/v-u.p{0,0}/v+u.p{0,0}\" \) " \
-        "-delete 0,1 +swap -compose Copy_Opacity -composite %s" % (
+        "-delete 0,1 +swap -compose Copy_Opacity -composite '%s'" % (
             input_file_names[0],
             input_file_names[1],
             merged_file_name
@@ -169,12 +169,15 @@ Promise.all(queue).then(function() {
                 for frame_index in frame_indices:
                     rendered_images[frame_index] = 0
 
+                response_pattern = re.compile("^\d+/#[A-Fa-f0-9]{3,6}$")
+
                 with ThreadPoolExecutor(max_workers=(Settings.processor_count - 1)) as pool:
                     for line in process.stdout:
                         text = line.decode("utf-8")
 
                         # catches random output from SlimerJS
-                        if "WARN" in text:
+                        if not response_pattern.match(text):
+                            logging.debug("SlimerJS > %s" % text)
                             continue
 
                         # we don't care about the color for now, we just need both to finish
